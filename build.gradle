@@ -1,0 +1,9 @@
+apply plugin: "java"
+
+mainClassName = 'StudioJar'
+
+jar {
+	manifest {
+		attributes('Main-Class': mainClassName)
+	}
+}
