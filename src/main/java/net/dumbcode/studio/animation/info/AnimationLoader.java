@@ -1,6 +1,6 @@
-package com.dumbcodemc.studio.animation.info;
+package net.dumbcode.studio.animation.info;
 
-import com.dumbcodemc.studio.util.ByteBuffer;
+import net.dumbcode.studio.util.ByteBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,9 +1,7 @@
-package com.dumbcodemc.studio;
+package net.dumbcode.studio;
 
-import com.dumbcodemc.studio.animation.info.AnimationInfo;
-import com.dumbcodemc.studio.animation.info.AnimationLoader;
-import com.dumbcodemc.studio.model.ModelInfo;
-import com.dumbcodemc.studio.model.ModelLoader;
+import net.dumbcode.studio.animation.info.AnimationInfo;
+import net.dumbcode.studio.animation.info.AnimationLoader;
 
 import java.io.File;
 import java.io.FileInputStream;

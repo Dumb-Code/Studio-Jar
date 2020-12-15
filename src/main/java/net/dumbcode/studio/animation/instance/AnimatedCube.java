@@ -1,6 +1,6 @@
-package com.dumbcodemc.studio.animation.instance;
+package net.dumbcode.studio.animation.instance;
 
-import com.dumbcodemc.studio.model.CubeInfo;
+import net.dumbcode.studio.model.CubeInfo;
 
 public interface AnimatedCube {
     CubeInfo getInfo();

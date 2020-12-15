@@ -1,7 +1,6 @@
-package com.dumbcodemc.studio.animation.instance;
+package net.dumbcode.studio.animation.instance;
 
-import com.dumbcodemc.studio.animation.info.AnimationInfo;
-import com.dumbcodemc.studio.animation.info.KeyframeInfo;
+import net.dumbcode.studio.animation.info.AnimationInfo;
 
 import java.util.*;
 

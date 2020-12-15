@@ -1,4 +1,4 @@
-package com.dumbcodemc.studio.animation.instance;
+package net.dumbcode.studio.animation.instance;
 
 public class AnimatedCubeEntry {
     private final AnimatedCube backend;

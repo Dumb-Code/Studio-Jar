@@ -1,4 +1,4 @@
-package com.dumbcodemc.studio.model;
+package net.dumbcode.studio.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

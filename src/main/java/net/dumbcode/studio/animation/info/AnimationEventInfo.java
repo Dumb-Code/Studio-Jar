@@ -1,4 +1,4 @@
-package com.dumbcodemc.studio.animation.info;
+package net.dumbcode.studio.animation.info;
 
 import java.util.HashMap;
 import java.util.List;

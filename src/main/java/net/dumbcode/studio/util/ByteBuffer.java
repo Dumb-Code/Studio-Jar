@@ -1,4 +1,4 @@
-package com.dumbcodemc.studio.util;
+package net.dumbcode.studio.util;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
