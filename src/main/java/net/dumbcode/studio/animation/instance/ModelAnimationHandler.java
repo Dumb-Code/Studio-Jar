@@ -9,23 +9,33 @@ public class ModelAnimationHandler {
 
     private final RotationOrder order;
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
-    private final Map<String, DelegateCube> nameToCube = new HashMap<>();
 
+    private final Map<String, DelegateCubeRotation> rotationDelegates = new HashMap<>();
+    private final Map<String, DelegateCubePosition> positionDelegates = new HashMap<>();
     public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
         this.order = order;
         for (AnimatedCube cube : allCubes) {
-            this.nameToCube.put(cube.getInfo().getName(), new DelegateCube(cube));
+            this.rotationDelegates.put(cube.getInfo().getName(), new DelegateCubeRotation(cube, order));
+            this.positionDelegates.put(cube.getInfo().getName(), new DelegateCubePosition(cube));
         }
     }
 
     public void animate(float delta) {
-        for (DelegateCube cube : this.nameToCube.values()) {
+        for (DelegateCubeRotation cube : this.rotationDelegates.values()) {
             cube.reset();
         }
+        for (DelegateCubePosition cube : this.positionDelegates.values()) {
+            cube.reset();
+        }
+
         for (AnimationEntry value : this.entries.values()) {
             value.animate(delta);
         }
-        for (DelegateCube cube : this.nameToCube.values()) {
+
+        for (DelegateCubeRotation cube : this.rotationDelegates.values()) {
+            cube.apply();
+        }
+        for (DelegateCubePosition cube : this.positionDelegates.values()) {
             cube.apply();
         }
     }
@@ -46,13 +56,12 @@ public class ModelAnimationHandler {
         this.entries.remove(uuid);
     }
 
-    DelegateCube getCube(String name) {
-        return this.nameToCube.get(name);
+    DelegateCubeRotation getRotationCube(String name) {
+        return this.rotationDelegates.get(name);
     }
 
-    RotationOrder getOrder() {
-        return this.order;
+    DelegateCubePosition getPositionCube(String name) {
+        return this.positionDelegates.get(name);
     }
-
 
 }
