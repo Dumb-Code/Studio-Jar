@@ -46,7 +46,7 @@ public class AnimationEntry {
             time = this.getProgressionValue(info, localTimeDone);
         }
 
-        info.getRotationMap().forEach((cubeName, values) -> {
+        info.getRotationMap(this.model.getOrder()).forEach((cubeName, values) -> {
             DelegateCube cube = this.model.getCube(cubeName);
             if(cube != null) { //When an animation references a cube that doesn't exist
                 cube.addRotation(

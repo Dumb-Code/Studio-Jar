@@ -1,15 +1,14 @@
 package net.dumbcode.studio.animation.info;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.dumbcode.studio.model.RotationOrder;
+
+import java.util.*;
 
 public class KeyframeInfo {
     private final float startTime;
     private final float duration;
     private final int layer;
-    private final Map<String, float[]> rotationMap = new HashMap<>();
+    private final Map<RotationOrder, Map<String, float[]>> rotationMap = new EnumMap<>(RotationOrder.class);
     private final Map<String, float[]> positionMap = new HashMap<>();
     private final List<float[]> progressionPoints = new ArrayList<>();
 
@@ -31,8 +30,8 @@ public class KeyframeInfo {
         return this.layer;
     }
 
-    public Map<String, float[]> getRotationMap() {
-        return this.rotationMap;
+    public Map<String, float[]> getRotationMap(RotationOrder order) {
+        return this.rotationMap.computeIfAbsent(order, o -> new HashMap<>());
     }
 
     public Map<String, float[]> getPositionMap() {

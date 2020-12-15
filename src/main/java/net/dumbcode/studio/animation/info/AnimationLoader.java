@@ -1,6 +1,8 @@
 package net.dumbcode.studio.animation.info;
 
+import net.dumbcode.studio.model.RotationOrder;
 import net.dumbcode.studio.util.ByteBuffer;
+import net.dumbcode.studio.util.RotationReorder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,8 +10,10 @@ import java.util.*;
 
 public class AnimationLoader {
     public static int MINIMUM_VERSION = 6;
+
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
         ByteBuffer buffer = new ByteBuffer(stream);
+        RotationOrder current = RotationOrder.ZYX; //TODO: load from dca 
         AnimationInfo info = new AnimationInfo(buffer.readInt());
         if(info.getVersion() < MINIMUM_VERSION) {
             throw new IOException("Animation Needs to be at least version: " + MINIMUM_VERSION + ". Got:" + info.getVersion());
@@ -17,7 +21,7 @@ public class AnimationLoader {
 
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            info.getKeyframes().add(readKeyframe(buffer));
+            info.getKeyframes().add(readKeyframe(buffer, current));
         }
 
         readAnimationEvents(buffer, info.getAnimationEvents());
@@ -25,11 +29,22 @@ public class AnimationLoader {
         return info;
     }
 
-    private static KeyframeInfo readKeyframe(ByteBuffer buffer) throws IOException {
+    private static KeyframeInfo readKeyframe(ByteBuffer buffer, RotationOrder current) throws IOException {
         KeyframeInfo keyframe = new KeyframeInfo(buffer.readFloat(), buffer.readFloat(), buffer.readInt());
 
-        readKeyframeMap(buffer, keyframe.getRotationMap(), (float) (Math.PI/180));
+        readKeyframeMap(buffer, keyframe.getRotationMap(current), (float) (Math.PI/180));
         readKeyframeMap(buffer, keyframe.getPositionMap(), 1);
+
+        for (RotationOrder value : RotationOrder.values()) {
+            if(value == current) {
+                continue;
+            }
+            Map<String, float[]> map = keyframe.getRotationMap(value);
+            keyframe.getRotationMap(current).forEach((name, values) ->
+                map.put(name, RotationReorder.reorder(Arrays.copyOf(values, 3), current, value))
+            );
+
+        }
 
         readProgressionPoints(buffer, keyframe.getProgressionPoints());
 

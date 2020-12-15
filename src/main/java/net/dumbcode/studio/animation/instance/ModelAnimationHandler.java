@@ -1,15 +1,18 @@
 package net.dumbcode.studio.animation.instance;
 
 import net.dumbcode.studio.animation.info.AnimationInfo;
+import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.*;
 
 public class ModelAnimationHandler {
 
+    private final RotationOrder order;
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
     private final Map<String, DelegateCube> nameToCube = new HashMap<>();
 
-    public ModelAnimationHandler(List<? extends AnimatedCube> allCubes) {
+    public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
+        this.order = order;
         for (AnimatedCube cube : allCubes) {
             this.nameToCube.put(cube.getInfo().getName(), new DelegateCube(cube));
         }
@@ -45,6 +48,10 @@ public class ModelAnimationHandler {
 
     DelegateCube getCube(String name) {
         return this.nameToCube.get(name);
+    }
+
+    RotationOrder getOrder() {
+        return this.order;
     }
 
 
