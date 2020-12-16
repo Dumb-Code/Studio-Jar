@@ -7,13 +7,12 @@ import java.util.*;
 
 public class ModelAnimationHandler {
 
-    private final RotationOrder order;
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
+    private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
 
     private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
     
     public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
-        this.order = order;
         for (AnimatedCube cube : allCubes) {
             this.cubeDelegates.put(cube.getInfo().getName(), new DelegateCube(cube, order));
         }
@@ -24,6 +23,7 @@ public class ModelAnimationHandler {
             cube.reset();
         }
 
+        this.cooldownEntries.removeIf(e -> e.cooldownRemove(delta));
         for (AnimationEntry value : this.entries.values()) {
             value.animate(delta);
         }
@@ -33,11 +33,9 @@ public class ModelAnimationHandler {
         }
     }
 
-
     public UUID startAnimation(AnimationInfo info) {
         UUID uuid = UUID.randomUUID();
         this.entries.put(uuid, new AnimationEntry(this, info, uuid));
-        //TODO: gather removed animations and interpolate it to 0 (ghost wraps)
         return uuid;
     }
 
@@ -46,7 +44,10 @@ public class ModelAnimationHandler {
     }
 
     public void removeEntry(UUID uuid) {
-        this.entries.remove(uuid);
+        AnimationEntry remove = this.entries.remove(uuid);
+        if(remove != null) {
+            this.cooldownEntries.add(remove);
+        }
     }
 
     DelegateCube getCube(String name) {

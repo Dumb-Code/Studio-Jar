@@ -3,13 +3,23 @@ package net.dumbcode.studio.animation.instance;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.animation.info.KeyframeInfo;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AnimationEntry {
+
+    public static float cooldownTime = 10;
+
     private final ModelAnimationHandler model;
     private final AnimationInfo info;
     private final UUID uuid;
     private float timeDone;
+
+    private boolean markedRemove;
+
+    private final Map<String, float[]> endRotationData = new HashMap<>();
+    private final Map<String, float[]> endPositionData = new HashMap<>();
 
     public AnimationEntry(ModelAnimationHandler model, AnimationInfo info, UUID uuid) {
         this.model = model;
@@ -18,17 +28,55 @@ public class AnimationEntry {
     }
 
     public void animate(float deltaTime) {
-        this.timeDone += deltaTime;
+        if(!this.markedRemove) {
+            this.timeDone += deltaTime;
+        }
+
         boolean done = true;
         for (KeyframeInfo keyframe : this.info.getKeyframes()) {
             done &= this.animateKeyframe(keyframe);
         }
 
-        if(done) {
+        if(this.markedRemove) {
+            this.timeDone = cooldownTime;
             this.model.removeEntry(this.uuid);
         }
 
+        if(done) {
+            this.markedRemove = true;
+        }
+
         //TODO: animation events.
+    }
+
+    //True if finished. False otherwise.
+    public boolean cooldownRemove(float deltaTime) {
+        this.timeDone -= deltaTime;
+        if(this.timeDone <= 0) {
+            return true;
+        }
+        float time = this.timeDone/cooldownTime;
+        this.endPositionData.forEach((name, data) -> {
+            DelegateCube cube = this.model.getCube(name);
+            if(cube != null) {
+                cube.addPosition(
+                    data[0] * time,
+                    data[1] * time,
+                    data[2] * time
+                );
+            }
+        });
+        this.endRotationData.forEach((name, data) -> {
+            DelegateCube cube = this.model.getCube(name);
+            if(cube != null) {
+                cube.addRotation(this.info.getOrder(),
+                    data[0] * time,
+                    data[1] * time,
+                    data[2] * time
+                );
+            }
+        });
+        return false;
     }
 
     //returns true if finished, false if not
@@ -49,6 +97,13 @@ public class AnimationEntry {
         info.getRotationMap().forEach((cubeName, values) -> {
             DelegateCube cube = this.model.getCube(cubeName);
             if(cube != null) { //When an animation references a cube that doesn't exist
+                if(this.markedRemove) {
+                    float[] data = this.endRotationData.computeIfAbsent(cubeName, k -> new float[3]);
+                    data[0] += values[0] * time;
+                    data[1] += values[1] * time;
+                    data[2] += values[2] * time;
+                }
+
                 cube.addRotation(this.info.getOrder(),
                     values[0] * time,
                     values[1] * time,
@@ -60,6 +115,12 @@ public class AnimationEntry {
         info.getPositionMap().forEach((cubeName, values) -> {
             DelegateCube cube = this.model.getCube(cubeName);
             if(cube != null) { //When an animation references a cube that doesn't exist
+                if(this.markedRemove) {
+                    float[] data = this.endPositionData.computeIfAbsent(cubeName, k -> new float[3]);
+                    data[0] += values[0] * time;
+                    data[1] += values[1] * time;
+                    data[2] += values[2] * time;
+                }
                 cube.addPosition(
                     values[0] * time,
                     values[1] * time,
@@ -85,6 +146,7 @@ public class AnimationEntry {
         //Should not occur, but if it does we can just return the base %
         return timeDone;
     }
+
 
     public UUID getUuid() {
         return uuid;
