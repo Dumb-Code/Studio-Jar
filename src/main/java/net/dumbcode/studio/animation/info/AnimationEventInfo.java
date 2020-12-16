@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationEventInfo {
-    private final int time;
+    private final float time;
     private final Map<String, List<String>> data = new HashMap<>();
 
-    public AnimationEventInfo(int time) {
+    public AnimationEventInfo(float time) {
         this.time = time;
     }
 
-    public int getTime() {
+    public float getTime() {
         return this.time;
     }
 

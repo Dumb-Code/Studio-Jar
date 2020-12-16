@@ -25,6 +25,8 @@ public class AnimationLoader {
 
         readAnimationEvents(buffer, info.getAnimationEvents());
 
+        info.generatedCachedData();
+
         return info;
     }
 
@@ -59,7 +61,7 @@ public class AnimationLoader {
     private static void readAnimationEvents(ByteBuffer buffer, List<AnimationEventInfo> events) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            AnimationEventInfo info = new AnimationEventInfo(buffer.readInt());
+            AnimationEventInfo info = new AnimationEventInfo(buffer.readFloat());
             int dataSize = buffer.readInt();
             for (int d = 0; d < dataSize; d++) {
                 info.getData().computeIfAbsent(buffer.readString(), s -> new ArrayList<>()).add(buffer.readString());

@@ -1,9 +1,13 @@
 package net.dumbcode.studio.animation.instance;
 
+import net.dumbcode.studio.animation.events.AnimationEventHandler;
+import net.dumbcode.studio.animation.events.AnimationEventRegister;
+import net.dumbcode.studio.animation.info.AnimationEventInfo;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.animation.info.KeyframeInfo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +32,7 @@ public class AnimationEntry {
     }
 
     public void animate(float deltaTime) {
+        float previousTime = this.timeDone;
         if(!this.markedRemove) {
             this.timeDone += deltaTime;
         }
@@ -46,7 +51,17 @@ public class AnimationEntry {
             this.markedRemove = true;
         }
 
-        //TODO: animation events.
+        if(this.timeDone < this.info.getTotalTime()) {
+            for (AnimationEventInfo event : this.info.getSortedEvents()[(int) this.timeDone]) {
+                if(event.getTime() >= previousTime && event.getTime() < this.timeDone) {
+                    for (Map.Entry<String, List<String>> entry : event.getData().entrySet()) {
+                        for (String s : entry.getValue()) {
+                            AnimationEventRegister.playEvent(entry.getKey(), s, this.model.getSrc());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     //True if finished. False otherwise.

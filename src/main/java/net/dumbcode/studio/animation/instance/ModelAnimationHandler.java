@@ -7,15 +7,22 @@ import java.util.*;
 
 public class ModelAnimationHandler {
 
+    private final Object src;
+
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
     private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
 
     private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
-    
+
     public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
+        this(order, allCubes, null);
+    }
+
+    public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes, Object src) {
         for (AnimatedCube cube : allCubes) {
             this.cubeDelegates.put(cube.getInfo().getName(), new DelegateCube(cube, order));
         }
+        this.src = src;
     }
 
     public void animate(float delta) {
@@ -52,6 +59,10 @@ public class ModelAnimationHandler {
 
     DelegateCube getCube(String name) {
         return this.cubeDelegates.get(name);
+    }
+
+    Object getSrc() {
+        return this.src;
     }
 
 }
