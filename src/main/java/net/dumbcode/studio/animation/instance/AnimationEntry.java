@@ -47,7 +47,7 @@ public class AnimationEntry {
         }
 
         info.getRotationMap().forEach((cubeName, values) -> {
-            DelegateCubeRotation cube = this.model.getRotationCube(cubeName);
+            DelegateCube cube = this.model.getCube(cubeName);
             if(cube != null) { //When an animation references a cube that doesn't exist
                 cube.addRotation(this.info.getOrder(),
                     values[0] * time,
@@ -58,7 +58,7 @@ public class AnimationEntry {
         });
 
         info.getPositionMap().forEach((cubeName, values) -> {
-            DelegateCubePosition cube = this.model.getPositionCube(cubeName);
+            DelegateCube cube = this.model.getCube(cubeName);
             if(cube != null) { //When an animation references a cube that doesn't exist
                 cube.addPosition(
                     values[0] * time,

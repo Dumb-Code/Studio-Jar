@@ -10,21 +10,17 @@ public class ModelAnimationHandler {
     private final RotationOrder order;
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
 
-    private final Map<String, DelegateCubeRotation> rotationDelegates = new HashMap<>();
-    private final Map<String, DelegateCubePosition> positionDelegates = new HashMap<>();
+    private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
+    
     public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
         this.order = order;
         for (AnimatedCube cube : allCubes) {
-            this.rotationDelegates.put(cube.getInfo().getName(), new DelegateCubeRotation(cube, order));
-            this.positionDelegates.put(cube.getInfo().getName(), new DelegateCubePosition(cube));
+            this.cubeDelegates.put(cube.getInfo().getName(), new DelegateCube(cube, order));
         }
     }
 
     public void animate(float delta) {
-        for (DelegateCubeRotation cube : this.rotationDelegates.values()) {
-            cube.reset();
-        }
-        for (DelegateCubePosition cube : this.positionDelegates.values()) {
+        for (DelegateCube cube : this.cubeDelegates.values()) {
             cube.reset();
         }
 
@@ -32,10 +28,7 @@ public class ModelAnimationHandler {
             value.animate(delta);
         }
 
-        for (DelegateCubeRotation cube : this.rotationDelegates.values()) {
-            cube.apply();
-        }
-        for (DelegateCubePosition cube : this.positionDelegates.values()) {
+        for (DelegateCube cube : this.cubeDelegates.values()) {
             cube.apply();
         }
     }
@@ -56,12 +49,8 @@ public class ModelAnimationHandler {
         this.entries.remove(uuid);
     }
 
-    DelegateCubeRotation getRotationCube(String name) {
-        return this.rotationDelegates.get(name);
-    }
-
-    DelegateCubePosition getPositionCube(String name) {
-        return this.positionDelegates.get(name);
+    DelegateCube getCube(String name) {
+        return this.cubeDelegates.get(name);
     }
 
 }
