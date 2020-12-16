@@ -40,13 +40,13 @@ public class DelegateCube {
             float[] d = this.defaultRotationMap.get(value);
             float[] a = this.rotationMap.get(value);
 
-            if(value == this.modelOrder) {
+            if (value == this.modelOrder) {
                 arr[0] += a[0];
                 arr[1] += a[1];
                 arr[2] += a[2];
                 continue;
             }
-            if(a[0] == 0 && a[1] == 0 && a[2] == 0) {
+            if (a[0] == 0 && a[1] == 0 && a[2] == 0) {
                 continue;
             }
             a[0] += d[0];

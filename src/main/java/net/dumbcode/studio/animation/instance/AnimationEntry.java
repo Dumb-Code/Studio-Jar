@@ -37,12 +37,12 @@ public class AnimationEntry {
             done &= this.animateKeyframe(keyframe);
         }
 
-        if(this.markedRemove) {
+        if (this.markedRemove) {
             this.timeDone = cooldownTime;
             this.model.removeEntry(this.uuid);
         }
 
-        if(done) {
+        if (done) {
             this.markedRemove = true;
         }
 
@@ -52,7 +52,7 @@ public class AnimationEntry {
     //True if finished. False otherwise.
     public boolean cooldownRemove(float deltaTime) {
         this.timeDone -= deltaTime;
-        if(this.timeDone <= 0) {
+        if (this.timeDone <= 0) {
             return true;
         }
         float time = this.timeDone/cooldownTime;
@@ -68,7 +68,7 @@ public class AnimationEntry {
         });
         this.endRotationData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
-            if(cube != null) {
+            if (cube != null) {
                 cube.addRotation(this.info.getOrder(),
                     data[0] * time,
                     data[1] * time,
@@ -94,40 +94,49 @@ public class AnimationEntry {
             time = this.getProgressionValue(info, localTimeDone);
         }
 
-        info.getRotationMap().forEach((cubeName, values) -> {
-            DelegateCube cube = this.model.getCube(cubeName);
-            if(cube != null) { //When an animation references a cube that doesn't exist
-                if(this.markedRemove) {
+
+        String cubeName;
+        float[] value;
+        DelegateCube cube;
+
+        for (Map.Entry<String, float[]> entry : info.getRotationMap().entrySet()) {
+            cubeName = entry.getKey();
+            value = entry.getValue();
+            cube = this.model.getCube(cubeName);
+            if (cube != null) { //When an animation references a cube that doesn't exist
+                if (this.markedRemove) {
                     float[] data = this.endRotationData.computeIfAbsent(cubeName, k -> new float[3]);
-                    data[0] += values[0] * time;
-                    data[1] += values[1] * time;
-                    data[2] += values[2] * time;
+                    data[0] += value[0] * time;
+                    data[1] += value[1] * time;
+                    data[2] += value[2] * time;
                 }
 
                 cube.addRotation(this.info.getOrder(),
-                    values[0] * time,
-                    values[1] * time,
-                    values[2] * time
+                        value[0] * time,
+                        value[1] * time,
+                        value[2] * time
                 );
             }
-        });
+        }
 
-        info.getPositionMap().forEach((cubeName, values) -> {
-            DelegateCube cube = this.model.getCube(cubeName);
-            if(cube != null) { //When an animation references a cube that doesn't exist
-                if(this.markedRemove) {
+        for (Map.Entry<String, float[]> entry : info.getPositionMap().entrySet()) {
+            cubeName = entry.getKey();
+            value = entry.getValue();
+            cube = this.model.getCube(cubeName);
+            if (cube != null) { //When an animation references a cube that doesn't exist
+                if (this.markedRemove) {
                     float[] data = this.endPositionData.computeIfAbsent(cubeName, k -> new float[3]);
-                    data[0] += values[0] * time;
-                    data[1] += values[1] * time;
-                    data[2] += values[2] * time;
+                    data[0] += value[0] * time;
+                    data[1] += value[1] * time;
+                    data[2] += value[2] * time;
                 }
                 cube.addPosition(
-                    values[0] * time,
-                    values[1] * time,
-                    values[2] * time
+                        value[0] * time,
+                        value[1] * time,
+                        value[2] * time
                 );
             }
-        });
+        }
 
         return time == 1;
     }
@@ -137,9 +146,8 @@ public class AnimationEntry {
             float[] current = info.getProgressionPoints().get(i);
             float[] next = info.getProgressionPoints().get(i+1);
 
-            if(timeDone > current[0] && timeDone < next[0]) {
-                float interpolateBetweenAmount = (timeDone - current[0]) / (next[0] - current[0]);
-                return 1 - (current[1] + (next[1] - current[1]) * interpolateBetweenAmount);
+            if (timeDone > current[0] && timeDone < next[0]) {
+                return 1 - (current[1] + (next[1] - current[1]) * (timeDone - current[0]) / (next[0] - current[0]));
             }
         }
 
