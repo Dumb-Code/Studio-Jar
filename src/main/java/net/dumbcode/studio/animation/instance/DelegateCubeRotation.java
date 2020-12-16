@@ -41,6 +41,9 @@ public class DelegateCubeRotation {
                 arr[2] += a[2];
                 continue;
             }
+            if(a[0] == 0 && a[1] == 0 && a[2] == 0) {
+                continue;
+            }
             a[0] += d[0];
             a[1] += d[1];
             a[2] += d[2];
