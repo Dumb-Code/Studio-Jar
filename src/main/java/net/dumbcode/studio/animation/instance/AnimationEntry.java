@@ -94,6 +94,10 @@ public class AnimationEntry {
         return false;
     }
 
+    public void finish() {
+        this.markedRemove = true;
+    }
+
     //returns true if finished, false if not
     private boolean animateKeyframe(KeyframeInfo info) {
         float localTimeDone = (this.timeDone - info.getStartTime()) / info.getDuration();

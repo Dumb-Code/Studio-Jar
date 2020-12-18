@@ -50,7 +50,15 @@ public class ModelAnimationHandler {
         return this.entries.containsKey(uuid);
     }
 
-    public void removeEntry(UUID uuid) {
+    public void markRemoved(UUID uuid) {
+        AnimationEntry entry = this.entries.get(uuid);
+        if(entry != null) {
+            entry.finish();
+        }
+
+    }
+
+    void removeEntry(UUID uuid) {
         AnimationEntry remove = this.entries.remove(uuid);
         if(remove != null) {
             this.cooldownEntries.add(remove);
