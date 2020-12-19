@@ -46,8 +46,12 @@ public class ModelAnimationHandler {
     }
 
     public UUID startAnimation(AnimationInfo info) {
+        return startAnimation(info, false);
+    }
+
+    public UUID startAnimation(AnimationInfo info, boolean loop) {
         UUID uuid = UUID.randomUUID();
-        this.entries.put(uuid, new AnimationEntry(this, info, uuid));
+        this.entries.put(uuid, new AnimationEntry(this, info, uuid, loop));
         return uuid;
     }
 

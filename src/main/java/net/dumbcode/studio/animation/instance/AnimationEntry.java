@@ -19,6 +19,7 @@ public class AnimationEntry {
     private final AnimationInfo info;
     private final UUID uuid;
     private float timeDone;
+    boolean loop;
 
     private boolean markedRemove;
 
@@ -26,15 +27,25 @@ public class AnimationEntry {
     private final Map<String, float[]> endPositionData = new HashMap<>();
 
     public AnimationEntry(ModelAnimationHandler model, AnimationInfo info, UUID uuid) {
+        this(model, info, uuid, false);
+    }
+
+    public AnimationEntry(ModelAnimationHandler model, AnimationInfo info, UUID uuid, boolean loop) {
         this.model = model;
         this.info = info;
         this.uuid = uuid;
+        this.loop = loop;
     }
 
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
-        if(!this.markedRemove) {
+        if (!this.markedRemove) {
             this.timeDone += deltaTime;
+        } else {
+            if (loop) {
+                this.timeDone = 0;
+                this.markedRemove = false;
+            }
         }
 
         boolean done = true;
