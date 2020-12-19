@@ -7,7 +7,8 @@ import java.util.*;
 
 public class ModelAnimationHandler {
 
-    private final Object src;
+    //This is not final because we can re-use models for culled objects on other objects.
+    private Object src;
 
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
     private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
@@ -22,6 +23,10 @@ public class ModelAnimationHandler {
         for (AnimatedCube cube : allCubes) {
             this.cubeDelegates.put(cube.getInfo().getName(), new DelegateCube(cube, order));
         }
+        this.src = src;
+    }
+
+    public void setSrc(Object src) {
         this.src = src;
     }
 
