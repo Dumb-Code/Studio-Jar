@@ -59,7 +59,7 @@ public class AnimationEntry extends AnimationConsumer {
         }
         if(this.timeDone > this.data.getInfo().getTotalTime()) {
             AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData);
-            if(!this.data.isLoop()) {
+            if(this.data.isLoop()) {
                 this.isLooping = true;
                 this.timeDone = 0;
             } else {
