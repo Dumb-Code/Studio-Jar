@@ -62,6 +62,7 @@ public class AnimationEntry extends AnimationConsumer {
             if(this.data.isLoop()) {
                 this.isLooping = true;
                 this.timeDone = 0;
+                this.animateLoopingFrame();
             } else {
                 this.finish();
             }

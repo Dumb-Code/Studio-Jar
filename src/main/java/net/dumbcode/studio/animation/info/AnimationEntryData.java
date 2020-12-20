@@ -9,7 +9,11 @@ public class AnimationEntryData {
     }
 
     public AnimationEntryData loop() {
-        this.loop = true;
+        return this.loop(true);
+    }
+
+    public AnimationEntryData loop(boolean loop) {
+        this.loop = loop;
         return this;
     }
 

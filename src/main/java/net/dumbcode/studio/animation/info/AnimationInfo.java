@@ -5,6 +5,7 @@ import net.dumbcode.studio.animation.instance.AnimationEntry;
 import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -62,10 +63,10 @@ public class AnimationInfo {
 
 
         if(this.loopStartTime == -1) {
-            this.loopStartTime = (float) this.keyframes.stream()
-                .mapToDouble(KeyframeInfo::getStartTime)
-                .min()
-                .orElse(-1);
+            this.loopStartTime = this.keyframes.stream()
+                .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
+                .map(kf -> kf.getStartTime() + kf.getDuration())
+                .orElse(-1F);
         }
         this.setLoopStartTime(this.loopStartTime);
     }
