@@ -1,6 +1,7 @@
 package net.dumbcode.studio.animation.info;
 
 import net.dumbcode.studio.animation.instance.AnimationCapture;
+import net.dumbcode.studio.animation.instance.AnimationEntry;
 import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.ArrayList;
@@ -90,6 +91,11 @@ public class AnimationInfo {
 
     public AnimationEventInfo[][] getSortedEvents() {
         return sortedEvents;
+    }
+
+
+    public AnimationEntryData data() {
+        return new AnimationEntryData(this);
     }
 
     @Override
