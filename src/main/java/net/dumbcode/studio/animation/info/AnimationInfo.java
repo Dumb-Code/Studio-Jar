@@ -1,5 +1,6 @@
 package net.dumbcode.studio.animation.info;
 
+import net.dumbcode.studio.animation.instance.AnimationCapture;
 import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.ArrayList;
@@ -14,13 +15,21 @@ public class AnimationInfo {
     private final RotationOrder order;
     private final List<KeyframeInfo> keyframes = new ArrayList<>();
     private final List<AnimationEventInfo> animationEvents = new ArrayList<>();
-
     private float totalTime = 0;
+    private float loopStartTime;
+
+    private KeyframeInfo loopedKeyframe;
+
     private AnimationEventInfo[][] sortedEvents;
 
     public AnimationInfo(int version, RotationOrder order) {
+        this(version, order, -1);
+    }
+
+    public AnimationInfo(int version, RotationOrder order, float loopStartTime) {
         this.version = version;
         this.order = order;
+        this.loopStartTime = loopStartTime;
     }
 
     public int getVersion() {
@@ -49,10 +58,34 @@ public class AnimationInfo {
                     .toArray(value -> value == 0 ? EMPTY : new AnimationEventInfo[value])
             )
             .toArray(AnimationEventInfo[][]::new);
+
+
+        if(this.loopStartTime == -1) {
+            this.loopStartTime = (float) this.keyframes.stream()
+                .mapToDouble(KeyframeInfo::getStartTime)
+                .min()
+                .orElse(-1);
+        }
+        this.setLoopStartTime(this.loopStartTime);
     }
 
     public float getTotalTime() {
         return totalTime;
+    }
+
+    public AnimationInfo setLoopStartTime(float loopStartTime) {
+        this.loopStartTime = loopStartTime;
+        this.loopedKeyframe = new KeyframeInfo(0, loopStartTime, -1);
+        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), loopStartTime, this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap());
+        return this;
+    }
+
+    public float getLoopStartTime() {
+        return loopStartTime;
+    }
+
+    public KeyframeInfo getLoopedKeyframe() {
+        return loopedKeyframe;
     }
 
     public AnimationEventInfo[][] getSortedEvents() {

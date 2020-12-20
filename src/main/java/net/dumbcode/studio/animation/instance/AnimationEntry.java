@@ -1,78 +1,92 @@
 package net.dumbcode.studio.animation.instance;
 
-import net.dumbcode.studio.animation.events.AnimationEventHandler;
 import net.dumbcode.studio.animation.events.AnimationEventRegister;
+import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationEventInfo;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.animation.info.KeyframeInfo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class AnimationEntry {
+public class AnimationEntry extends AnimationConsumer {
 
     public static float cooldownTime = 10;
+    private static final float[] EMPTY = new float[3];
 
     private final ModelAnimationHandler model;
-    private final AnimationInfo info;
+    private final AnimationEntryData data;
     private final UUID uuid;
+
+    private boolean isLooping;
     private float timeDone;
-    boolean loop;
 
-    private boolean markedRemove;
+    private final Map<String, float[]> capturedRotationData = new HashMap<>();
+    private final Map<String, float[]> capturedPositionData = new HashMap<>();
 
-    private final Map<String, float[]> endRotationData = new HashMap<>();
-    private final Map<String, float[]> endPositionData = new HashMap<>();
-
-    public AnimationEntry(ModelAnimationHandler model, AnimationInfo info, UUID uuid) {
-        this(model, info, uuid, false);
+    public AnimationEntry(ModelAnimationHandler model, AnimationEntryData data, UUID uuid) {
+        super(data.getInfo().getKeyframes());
+        this.model = model;
+        this.data = data;
+        this.uuid = uuid;
     }
 
-    public AnimationEntry(ModelAnimationHandler model, AnimationInfo info, UUID uuid, boolean loop) {
-        this.model = model;
-        this.info = info;
-        this.uuid = uuid;
-        this.loop = loop;
+    @Override
+    protected void addPosition(String name, float x, float y, float z) {
+        DelegateCube cube = this.model.getCube(name);
+        if (cube != null) {
+            cube.addPosition(x, y, z);
+        }
+    }
+
+    @Override
+    protected void addRotation(String name, float x, float y, float z) {
+        DelegateCube cube = this.model.getCube(name);
+        if (cube != null) {
+            cube.addRotation(this.data.getInfo().getOrder(), x, y, z);
+        }
     }
 
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
-        if (!this.markedRemove) {
-            this.timeDone += deltaTime;
-        } else {
-            if (loop) {
-                this.timeDone = 0;
-                this.markedRemove = false;
+        this.timeDone += deltaTime;
+        if(this.isLooping) {
+            if(this.timeDone > this.data.getInfo().getLoopStartTime()) {
+                this.isLooping = false;
+            } else {
+                this.animateLoopingFrame();
+                return;
             }
         }
-
-        boolean done = true;
-        for (KeyframeInfo keyframe : this.info.getKeyframes()) {
-            done &= this.animateKeyframe(keyframe);
+        if(this.timeDone > this.data.getInfo().getTotalTime()) {
+            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData);
+            if(!this.data.isLoop()) {
+                this.isLooping = true;
+                this.timeDone = 0;
+            } else {
+                this.finish();
+            }
+            return;
         }
 
-        if (this.markedRemove) {
-            this.timeDone = cooldownTime;
-            this.model.removeEntry(this.uuid);
-        }
+        super.animateAtTime(this.timeDone);
 
-        if (done) {
-            this.markedRemove = true;
-        }
-
-        if(this.timeDone < this.info.getTotalTime()) {
-            for (AnimationEventInfo event : this.info.getSortedEvents()[(int) this.timeDone]) {
-                if(event.getTime() >= previousTime && event.getTime() < this.timeDone) {
-                    for (Map.Entry<String, List<String>> entry : event.getData().entrySet()) {
-                        for (String s : entry.getValue()) {
-                            AnimationEventRegister.playEvent(entry.getKey(), s, this.model.getSrc());
-                        }
+        for (AnimationEventInfo event : this.data.getInfo().getSortedEvents()[(int) this.timeDone]) {
+            if(event.getTime() >= previousTime && event.getTime() < this.timeDone) {
+                for (Map.Entry<String, List<String>> entry : event.getData().entrySet()) {
+                    for (String s : entry.getValue()) {
+                        AnimationEventRegister.playEvent(entry.getKey(), s, this.model.getSrc());
                     }
                 }
             }
         }
+    }
+
+    private void animateLoopingFrame() {
+        this.renderFromCaptured (
+            1 - this.timeDone/this.data.getInfo().getLoopStartTime(),
+            this.data.getInfo().getLoopedKeyframe().getPositionMap(),
+            this.data.getInfo().getLoopedKeyframe().getRotationMap()
+        );
     }
 
     //True if finished. False otherwise.
@@ -81,110 +95,41 @@ public class AnimationEntry {
         if (this.timeDone <= 0) {
             return true;
         }
-        float time = this.timeDone/cooldownTime;
-        this.endPositionData.forEach((name, data) -> {
+        this.renderFromCaptured(this.timeDone / cooldownTime, Collections.emptyMap(), Collections.emptyMap());
+        return false;
+
+
+    }
+    public void renderFromCaptured(float time, Map<String, float[]> posOffset, Map<String, float[]> rotOffset) {
+        float invTime = 1 - time;
+        this.capturedPositionData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
+            float[] off = posOffset.getOrDefault(name, EMPTY);
             if(cube != null) {
                 cube.addPosition(
-                    data[0] * time,
-                    data[1] * time,
-                    data[2] * time
+                    data[0]*time + off[0]*invTime,
+                    data[1]*time + off[1]*invTime,
+                    data[2]*time + off[2]*invTime
                 );
             }
         });
-        this.endRotationData.forEach((name, data) -> {
+        this.capturedRotationData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
+            float[] off = rotOffset.getOrDefault(name, EMPTY);
             if (cube != null) {
-                cube.addRotation(this.info.getOrder(),
-                    data[0] * time,
-                    data[1] * time,
-                    data[2] * time
+                cube.addRotation(this.data.getInfo().getOrder(),
+                    data[0]*time + off[0]*invTime,
+                    data[1]*time + off[1]*invTime,
+                    data[2]*time + off[2]*invTime
                 );
             }
         });
-        return false;
     }
 
     public void finish() {
-        this.markedRemove = true;
+        this.timeDone = cooldownTime;
+        this.model.removeEntry(this.uuid);
     }
-
-    //returns true if finished, false if not
-    private boolean animateKeyframe(KeyframeInfo info) {
-        float localTimeDone = (this.timeDone - info.getStartTime()) / info.getDuration();
-
-        if(localTimeDone <= 0) {
-            return false;
-        }
-
-        float time;
-        if(localTimeDone >= 1) {
-            time = 1;
-        } else {
-            time = this.getProgressionValue(info, localTimeDone);
-        }
-
-
-        String cubeName;
-        float[] value;
-        DelegateCube cube;
-
-        for (Map.Entry<String, float[]> entry : info.getRotationMap().entrySet()) {
-            cubeName = entry.getKey();
-            value = entry.getValue();
-            cube = this.model.getCube(cubeName);
-            if (cube != null) { //When an animation references a cube that doesn't exist
-                if (this.markedRemove) {
-                    float[] data = this.endRotationData.computeIfAbsent(cubeName, k -> new float[3]);
-                    data[0] += value[0] * time;
-                    data[1] += value[1] * time;
-                    data[2] += value[2] * time;
-                }
-
-                cube.addRotation(this.info.getOrder(),
-                        value[0] * time,
-                        value[1] * time,
-                        value[2] * time
-                );
-            }
-        }
-
-        for (Map.Entry<String, float[]> entry : info.getPositionMap().entrySet()) {
-            cubeName = entry.getKey();
-            value = entry.getValue();
-            cube = this.model.getCube(cubeName);
-            if (cube != null) { //When an animation references a cube that doesn't exist
-                if (this.markedRemove) {
-                    float[] data = this.endPositionData.computeIfAbsent(cubeName, k -> new float[3]);
-                    data[0] += value[0] * time;
-                    data[1] += value[1] * time;
-                    data[2] += value[2] * time;
-                }
-                cube.addPosition(
-                        value[0] * time,
-                        value[1] * time,
-                        value[2] * time
-                );
-            }
-        }
-
-        return time == 1;
-    }
-
-    private float getProgressionValue(KeyframeInfo info, float timeDone) {
-        for (int i = 0; i < info.getProgressionPoints().size() - 1; i++) {
-            float[] current = info.getProgressionPoints().get(i);
-            float[] next = info.getProgressionPoints().get(i+1);
-
-            if (timeDone > current[0] && timeDone < next[0]) {
-                return 1 - (current[1] + (next[1] - current[1]) * (timeDone - current[0]) / (next[0] - current[0]));
-            }
-        }
-
-        //Should not occur, but if it does we can just return the base %
-        return timeDone;
-    }
-
 
     public UUID getUuid() {
         return uuid;

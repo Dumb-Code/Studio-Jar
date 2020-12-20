@@ -1,5 +1,6 @@
 package net.dumbcode.studio.animation.instance;
 
+import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.model.RotationOrder;
 
@@ -46,12 +47,12 @@ public class ModelAnimationHandler {
     }
 
     public UUID startAnimation(AnimationInfo info) {
-        return startAnimation(info, false);
+        return this.startAnimation(new AnimationEntryData(info));
     }
 
-    public UUID startAnimation(AnimationInfo info, boolean loop) {
+    public UUID startAnimation(AnimationEntryData data) {
         UUID uuid = UUID.randomUUID();
-        this.entries.put(uuid, new AnimationEntry(this, info, uuid, loop));
+        this.entries.put(uuid, new AnimationEntry(this, data, uuid));
         return uuid;
     }
 
