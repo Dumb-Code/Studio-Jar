@@ -9,18 +9,25 @@ import java.util.*;
 
 public class AnimationLoader {
     public static int MINIMUM_VERSION = 6;
+    public static int MAXIMUM_VERSION = 7;
+
+    private static final int VER_CUBE_GROW = 7;
 
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
         ByteBuffer buffer = new ByteBuffer(stream);
         RotationOrder current = RotationOrder.ZYX; //TODO: load from dca 
         AnimationInfo info = new AnimationInfo(buffer.readInt(), current);
+
         if(info.getVersion() < MINIMUM_VERSION) {
             throw new IOException("Animation Needs to be at least version: " + MINIMUM_VERSION + ". Got:" + info.getVersion());
+        }
+        if(info.getVersion() > MAXIMUM_VERSION) {
+            throw new IOException("Animation is too advanced. Please update studio jar. Maximum supported:" + MINIMUM_VERSION + ". Got:" + info.getVersion());
         }
 
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            info.getKeyframes().add(readKeyframe(buffer));
+            info.getKeyframes().add(readKeyframe(buffer, info.getVersion()));
         }
 
         readAnimationEvents(buffer, info.getAnimationEvents());
@@ -30,11 +37,14 @@ public class AnimationLoader {
         return info;
     }
 
-    private static KeyframeInfo readKeyframe(ByteBuffer buffer) throws IOException {
+    private static KeyframeInfo readKeyframe(ByteBuffer buffer, int version) throws IOException {
         KeyframeInfo keyframe = new KeyframeInfo(buffer.readFloat(), buffer.readFloat(), buffer.readInt());
 
         readKeyframeMap(buffer, keyframe.getRotationMap(), (float) (Math.PI/180));
         readKeyframeMap(buffer, keyframe.getPositionMap(), 1);
+        if(version >= VER_CUBE_GROW) {
+            readKeyframeMap(buffer, keyframe.getCubeGrowMap(), 1);
+        }
 
         readProgressionPoints(buffer, keyframe.getProgressionPoints());
 

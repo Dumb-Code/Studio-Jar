@@ -78,7 +78,7 @@ public class AnimationInfo {
     public AnimationInfo setLoopStartTime(float loopStartTime) {
         this.loopStartTime = loopStartTime;
         this.loopedKeyframe = new KeyframeInfo(0, loopStartTime, -1);
-        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), loopStartTime, this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap());
+        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), loopStartTime, this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap(), this.loopedKeyframe.getCubeGrowMap());
         return this;
     }
 

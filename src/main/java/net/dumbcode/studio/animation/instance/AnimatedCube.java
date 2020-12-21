@@ -6,4 +6,5 @@ public interface AnimatedCube {
     CubeInfo getInfo();
     void setRotation(float x, float y, float z);
     void setPosition(float x, float y, float z);
+    void setCubeGrow(float x, float y, float z);
 }

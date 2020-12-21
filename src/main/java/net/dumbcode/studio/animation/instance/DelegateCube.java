@@ -1,5 +1,6 @@
 package net.dumbcode.studio.animation.instance;
 
+import net.dumbcode.studio.model.CubeInfo;
 import net.dumbcode.studio.model.RotationOrder;
 import net.dumbcode.studio.util.RotationReorder;
 
@@ -18,11 +19,15 @@ public class DelegateCube {
     private final float[] defaultPosition = new float[3];
     private final float[] position = new float[3];
 
+    private final float[] defaultCubeDims = new float[3];
+    private final float[] cubeDims = new float[3];
+
     public DelegateCube(AnimatedCube cubeReference, RotationOrder modelOrder) {
         this.cubeReference = cubeReference;
         this.modelOrder = modelOrder;
 
-        this.defaultRotationMap.put(modelOrder, Arrays.copyOf(cubeReference.getInfo().getRotation(), 3));
+        CubeInfo info = cubeReference.getInfo();
+        this.defaultRotationMap.put(modelOrder, Arrays.copyOf(info.getRotation(), 3));
         for (RotationOrder value : RotationOrder.values()) {
             if(value == modelOrder) {
                 continue;
@@ -30,7 +35,8 @@ public class DelegateCube {
             this.defaultRotationMap.put(value, RotationReorder.reorder(Arrays.copyOf(this.defaultRotationMap.get(modelOrder), 3), modelOrder, value));
         }
 
-        System.arraycopy(cubeReference.getInfo().getRotationPoint(), 0, this.defaultPosition, 0, 3);
+        System.arraycopy(info.getRotationPoint(), 0, this.defaultPosition, 0, 3);
+        System.arraycopy(info.getCubeGrow(), 0, this.defaultCubeDims, 0, 3);
     }
 
     public void apply() {
@@ -60,6 +66,7 @@ public class DelegateCube {
         }
         this.cubeReference.setRotation(arr[0], arr[1], arr[2]);
         this.cubeReference.setPosition(this.position[0], this.position[1], this.position[2]);
+        this.cubeReference.setCubeGrow(this.cubeDims[0], this.cubeDims[1], this.cubeDims[2]);
     }
 
     public void reset() {
@@ -67,6 +74,7 @@ public class DelegateCube {
             this.rotationMap.put(value, new float[3]);
         }
         System.arraycopy(this.defaultPosition, 0, this.position, 0, 3);
+        System.arraycopy(this.defaultCubeDims, 0, this.cubeDims, 0, 3);
     }
 
     public void addRotation(RotationOrder order, float x, float y, float z) {
@@ -80,5 +88,11 @@ public class DelegateCube {
         this.position[0] += x;
         this.position[1] += y;
         this.position[2] += z;
+    }
+
+    public void addCubeGrow(float x, float y, float z) {
+        this.cubeDims[0] += x;
+        this.cubeDims[1] += y;
+        this.cubeDims[2] += z;
     }
 }

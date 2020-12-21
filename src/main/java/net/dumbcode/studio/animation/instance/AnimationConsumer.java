@@ -27,6 +27,7 @@ public abstract class AnimationConsumer {
 
     protected abstract void addPosition(String name, float x, float y, float z);
     protected abstract void addRotation(String name, float x, float y, float z);
+    protected abstract void addCubeGrow(String name, float x, float y, float z);
 
     protected List<KeyframeInfo> getInfo() {
         return this.infos;
@@ -43,6 +44,10 @@ public abstract class AnimationConsumer {
         for (Map.Entry<String, float[]> entry : kf.getPositionMap().entrySet()) {
             values = entry.getValue();
             this.addPosition(entry.getKey(), values[0]*time, values[1]*time, values[2]*time);
+        }
+        for (Map.Entry<String, float[]> entry : kf.getCubeGrowMap().entrySet()) {
+            values = entry.getValue();
+            this.addCubeGrow(entry.getKey(), values[0]*time, values[1]*time, values[2]*time);
         }
     }
 

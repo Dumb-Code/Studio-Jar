@@ -12,6 +12,7 @@ public class AnimationCapture extends AnimationConsumer {
 
     private Map<String, float[]> position;
     private Map<String, float[]> rotation;
+    private Map<String, float[]> cubeGrow;
 
     private AnimationCapture() {}
 
@@ -31,7 +32,18 @@ public class AnimationCapture extends AnimationConsumer {
         values[2] += z;
     }
 
-    public void captureAnimation(List<KeyframeInfo> keyframes, float time, Map<String, float[]> position, Map<String, float[]> rotation) {
+    @Override
+    protected void addCubeGrow(String name, float x, float y, float z) {
+        float[] values = this.cubeGrow.computeIfAbsent(name, k -> new float[3]);
+        values[0] += x;
+        values[1] += y;
+        values[2] += z;
+    }
+
+    public void captureAnimation(List<KeyframeInfo> keyframes, float time,
+                                 Map<String, float[]> position,
+                                 Map<String, float[]> rotation,
+                                 Map<String, float[]> cubeGrow) {
         this.infos.clear();
         this.infos.addAll(keyframes);
 
@@ -40,6 +52,9 @@ public class AnimationCapture extends AnimationConsumer {
 
         this.rotation = rotation;
         this.rotation.clear();
+
+        this.cubeGrow = cubeGrow;
+        this.cubeGrow.clear();
 
         this.animateAtTime(time);
     }

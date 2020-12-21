@@ -8,6 +8,7 @@ public class KeyframeInfo {
     private final int layer;
     private final Map<String, float[]> rotationMap = new HashMap<>();
     private final Map<String, float[]> positionMap = new HashMap<>();
+    private final Map<String, float[]> cubeGrowMap = new HashMap<>();
     private final List<float[]> progressionPoints = new ArrayList<>();
 
     public KeyframeInfo(float startTime, float duration, int layer) {
@@ -34,6 +35,10 @@ public class KeyframeInfo {
 
     public Map<String, float[]> getPositionMap() {
         return this.positionMap;
+    }
+
+    public Map<String, float[]> getCubeGrowMap() {
+        return cubeGrowMap;
     }
 
     public List<float[]> getProgressionPoints() {

@@ -22,6 +22,7 @@ public class AnimationEntry extends AnimationConsumer {
 
     private final Map<String, float[]> capturedRotationData = new HashMap<>();
     private final Map<String, float[]> capturedPositionData = new HashMap<>();
+    private final Map<String, float[]> capturedCubeGrowData = new HashMap<>();
 
     public AnimationEntry(ModelAnimationHandler model, AnimationEntryData data, UUID uuid) {
         super(data.getInfo().getKeyframes());
@@ -46,6 +47,14 @@ public class AnimationEntry extends AnimationConsumer {
         }
     }
 
+    @Override
+    protected void addCubeGrow(String name, float x, float y, float z) {
+        DelegateCube cube = this.model.getCube(name);
+        if (cube != null) {
+            cube.addCubeGrow(x, y, z);
+        }
+    }
+
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
         this.timeDone += deltaTime;
@@ -58,7 +67,7 @@ public class AnimationEntry extends AnimationConsumer {
             }
         }
         if(this.timeDone > this.data.getInfo().getTotalTime()) {
-            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData);
+            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
             if(this.data.isLoop()) {
                 this.isLooping = true;
                 this.timeDone = 0;
@@ -86,7 +95,8 @@ public class AnimationEntry extends AnimationConsumer {
         this.renderFromCaptured (
             1 - this.timeDone/this.data.getInfo().getLoopStartTime(),
             this.data.getInfo().getLoopedKeyframe().getPositionMap(),
-            this.data.getInfo().getLoopedKeyframe().getRotationMap()
+            this.data.getInfo().getLoopedKeyframe().getRotationMap(),
+            this.data.getInfo().getLoopedKeyframe().getCubeGrowMap()
         );
     }
 
@@ -96,12 +106,12 @@ public class AnimationEntry extends AnimationConsumer {
         if (this.timeDone <= 0) {
             return true;
         }
-        this.renderFromCaptured(this.timeDone / cooldownTime, Collections.emptyMap(), Collections.emptyMap());
+        this.renderFromCaptured(this.timeDone / cooldownTime, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         return false;
 
 
     }
-    public void renderFromCaptured(float time, Map<String, float[]> posOffset, Map<String, float[]> rotOffset) {
+    public void renderFromCaptured(float time, Map<String, float[]> posOffset, Map<String, float[]> rotOffset, Map<String, float[]> cubeGrowOff) {
         float invTime = 1 - time;
         this.capturedPositionData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
@@ -119,6 +129,17 @@ public class AnimationEntry extends AnimationConsumer {
             float[] off = rotOffset.getOrDefault(name, EMPTY);
             if (cube != null) {
                 cube.addRotation(this.data.getInfo().getOrder(),
+                    data[0]*time + off[0]*invTime,
+                    data[1]*time + off[1]*invTime,
+                    data[2]*time + off[2]*invTime
+                );
+            }
+        });
+        this.capturedCubeGrowData.forEach((name, data) -> {
+            DelegateCube cube = this.model.getCube(name);
+            float[] off = cubeGrowOff.getOrDefault(name, EMPTY);
+            if (cube != null) {
+                cube.addCubeGrow(
                     data[0]*time + off[0]*invTime,
                     data[1]*time + off[1]*invTime,
                     data[2]*time + off[2]*invTime
