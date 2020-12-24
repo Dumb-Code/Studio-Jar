@@ -9,9 +9,10 @@ import java.util.*;
 
 public class AnimationLoader {
     public static int MINIMUM_VERSION = 6;
-    public static int MAXIMUM_VERSION = 7;
+    public static int MAXIMUM_VERSION = 8;
 
     private static final int VER_CUBE_GROW = 7;
+    private static final int VER_TIME_CHANGE = 8;
 
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
         ByteBuffer buffer = new ByteBuffer(stream);
@@ -30,7 +31,7 @@ public class AnimationLoader {
             info.getKeyframes().add(readKeyframe(buffer, info.getVersion()));
         }
 
-        readAnimationEvents(buffer, info.getAnimationEvents());
+        readAnimationEvents(buffer, info.getAnimationEvents(), info.getVersion());
 
         info.generatedCachedData();
 
@@ -38,7 +39,7 @@ public class AnimationLoader {
     }
 
     private static KeyframeInfo readKeyframe(ByteBuffer buffer, int version) throws IOException {
-        KeyframeInfo keyframe = new KeyframeInfo(buffer.readFloat(), buffer.readFloat(), buffer.readInt());
+        KeyframeInfo keyframe = new KeyframeInfo(readTime(buffer, version), readTime(buffer, version), buffer.readInt());
 
         readKeyframeMap(buffer, keyframe.getRotationMap(), (float) (Math.PI/180));
         readKeyframeMap(buffer, keyframe.getPositionMap(), 1);
@@ -52,6 +53,14 @@ public class AnimationLoader {
         keyframe.getProgressionPoints().sort(Comparator.comparing(e -> e[0]));
 
         return keyframe;
+    }
+
+    private static float readTime(ByteBuffer buffer, int version) throws IOException {
+        float time = buffer.readFloat();
+        if(version < VER_TIME_CHANGE) {
+            return time / 20F;
+        }
+        return time;
     }
 
     private static void readKeyframeMap(ByteBuffer buffer, Map<String, float[]> map, float modifier) throws IOException {
@@ -68,10 +77,10 @@ public class AnimationLoader {
         }
     }
 
-    private static void readAnimationEvents(ByteBuffer buffer, List<AnimationEventInfo> events) throws IOException {
+    private static void readAnimationEvents(ByteBuffer buffer, List<AnimationEventInfo> events, int version) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            AnimationEventInfo info = new AnimationEventInfo(buffer.readFloat());
+            AnimationEventInfo info = new AnimationEventInfo(readTime(buffer, version));
             int dataSize = buffer.readInt();
             for (int d = 0; d < dataSize; d++) {
                 info.getData().computeIfAbsent(buffer.readString(), s -> new ArrayList<>()).add(buffer.readString());
