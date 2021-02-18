@@ -124,11 +124,10 @@ public class CubeInfo {
 
         boolean tm = this.textureMirrored;
 
-        //1, 3, 4, 5, 0, 2
         this.generateFace(this.generatedUVs[tm ? 1 : 0], d, d+h, -d, -h);           //+x
         this.generateFace(this.generatedUVs[tm ? 0 : 1],  d+w+d, d+h, -d, -h); //-x
-        this.generateFace(this.generatedUVs[2], d+w, d, w, -d);                     //-y
-        this.generateFace(this.generatedUVs[3], d, 0, w, d);                        //+y
+        this.generateFace(this.generatedUVs[2], d, 0, w, d);                        //+y
+        this.generateFace(this.generatedUVs[3], d+w, d, w, -d);                     //-y
         this.generateFace(this.generatedUVs[4], d+w+d+w, d+h, -w, -h);         //+z
         this.generateFace(this.generatedUVs[5], d+w, d+h, -w, -h);             //-z
     }
