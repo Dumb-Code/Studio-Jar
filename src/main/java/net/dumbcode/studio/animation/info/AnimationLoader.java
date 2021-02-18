@@ -9,15 +9,18 @@ import java.util.*;
 
 public class AnimationLoader {
     public static int MINIMUM_VERSION = 6;
-    public static int MAXIMUM_VERSION = 8;
+    public static int MAXIMUM_VERSION = 10;
 
     private static final int VER_CUBE_GROW = 7;
     private static final int VER_TIME_CHANGE = 8;
+    private static final int VER_LOOPING_DATA = 9;
+    private static final int VER_INVERTED_ROT_XY = 10;
 
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
         ByteBuffer buffer = new ByteBuffer(stream);
         RotationOrder current = RotationOrder.ZYX; //TODO: load from dca
-        AnimationInfo info = new AnimationInfo(buffer.readInt(), current);
+        int version = buffer.readInt();
+        AnimationInfo info = new AnimationInfo(version, current, readLoopingData(buffer, version));
 
         if(info.getVersion() < MINIMUM_VERSION) {
             throw new IOException("Animation Needs to be at least version: " + MINIMUM_VERSION + ". Got:" + info.getVersion());
@@ -38,6 +41,17 @@ public class AnimationLoader {
         return info;
     }
 
+    private static KeyframeHeader.LoopingData readLoopingData(ByteBuffer buffer, int version) throws IOException {
+        if(version >= VER_LOOPING_DATA && buffer.readBoolean()) {
+            return new KeyframeHeader.LoopingData(
+                buffer.readFloat(),
+                buffer.readFloat(),
+                buffer.readFloat()
+            );
+        }
+        return null;
+    }
+
     private static KeyframeInfo readKeyframe(ByteBuffer buffer, int version) throws IOException {
         KeyframeInfo keyframe = new KeyframeInfo(readTime(buffer, version), readTime(buffer, version), buffer.readInt());
 
@@ -45,6 +59,12 @@ public class AnimationLoader {
         readKeyframeMap(buffer, keyframe.getPositionMap(), 1);
         if(version >= VER_CUBE_GROW) {
             readKeyframeMap(buffer, keyframe.getCubeGrowMap(), 1);
+        }
+        if(version < VER_INVERTED_ROT_XY) {
+            for (float[] value : keyframe.getRotationMap().values()) {
+                value[0] = -value[0];
+                value[1] = -value[1];
+            }
         }
 
         readProgressionPoints(buffer, keyframe.getProgressionPoints());

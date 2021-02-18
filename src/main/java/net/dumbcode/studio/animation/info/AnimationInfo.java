@@ -15,6 +15,8 @@ public class AnimationInfo {
 
     private final int version;
     private final RotationOrder order;
+    //Nullable
+    private final KeyframeHeader.LoopingData loopingData;
     private final List<KeyframeInfo> keyframes = new ArrayList<>();
     private final List<AnimationEventInfo> animationEvents = new ArrayList<>();
     private float totalTime = 0;
@@ -24,13 +26,14 @@ public class AnimationInfo {
 
     private AnimationEventInfo[][] sortedEvents;
 
-    public AnimationInfo(int version, RotationOrder order) {
-        this(version, order, -1);
+    public AnimationInfo(int version, RotationOrder order, KeyframeHeader.LoopingData loopingData) {
+        this(version, order, loopingData, -1);
     }
 
-    public AnimationInfo(int version, RotationOrder order, float loopStartTime) {
+    public AnimationInfo(int version, RotationOrder order, KeyframeHeader.LoopingData loopingData, float loopStartTime) {
         this.version = version;
         this.order = order;
+        this.loopingData = loopingData;
         this.loopStartTime = loopStartTime;
     }
 

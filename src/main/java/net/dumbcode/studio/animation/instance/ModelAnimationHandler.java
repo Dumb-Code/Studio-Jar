@@ -31,6 +31,7 @@ public class ModelAnimationHandler {
         this.src = src;
     }
 
+    //delta -> seconds
     public void animate(float delta) {
         for (DelegateCube cube : this.cubeDelegates.values()) {
             cube.reset();
