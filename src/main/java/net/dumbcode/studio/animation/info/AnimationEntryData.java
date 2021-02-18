@@ -1,24 +1,26 @@
 package net.dumbcode.studio.animation.info;
 
+import java.util.function.Supplier;
+
 public class AnimationEntryData {
     private final AnimationInfo info;
-    private boolean loop;
+    private Supplier<Boolean> loopUntil = () -> false;
 
     public AnimationEntryData(AnimationInfo info) {
         this.info = info;
     }
 
-    public AnimationEntryData loop() {
-        return this.loop(true);
+    public AnimationEntryData loopForever() {
+        return this.loopUntil(() -> true);
     }
 
-    public AnimationEntryData loop(boolean loop) {
-        this.loop = loop;
+    public AnimationEntryData loopUntil(Supplier<Boolean> condition) {
+        this.loopUntil = condition;
         return this;
     }
 
-    public boolean isLoop() {
-        return loop;
+    public boolean shouldLoop() {
+        return !this.loopUntil.get();
     }
 
     public AnimationInfo getInfo() {

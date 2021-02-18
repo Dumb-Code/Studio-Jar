@@ -3,8 +3,6 @@ package net.dumbcode.studio.animation.instance;
 import net.dumbcode.studio.animation.events.AnimationEventRegister;
 import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationEventInfo;
-import net.dumbcode.studio.animation.info.AnimationInfo;
-import net.dumbcode.studio.animation.info.KeyframeInfo;
 
 import java.util.*;
 
@@ -18,6 +16,8 @@ public class AnimationEntry extends AnimationConsumer {
     private final UUID uuid;
 
     private boolean isLooping;
+    private boolean loopFinishedMarker;
+    private boolean loopEndingMarker;
     private float timeDone;
 
     private final Map<String, float[]> capturedRotationData = new HashMap<>();
@@ -59,26 +59,37 @@ public class AnimationEntry extends AnimationConsumer {
         float previousTime = this.timeDone;
         this.timeDone += deltaTime;
         if(this.isLooping) {
-            if(this.timeDone > this.data.getInfo().getLoopStartTime()) {
+            if(this.timeDone > this.data.getInfo().getLoopingData().getDuration()) {
                 this.isLooping = false;
+                this.timeDone += this.data.getInfo().getLoopingData().getStart() - this.data.getInfo().getLoopingData().getDuration();
             } else {
                 this.animateLoopingFrame();
                 return;
             }
         }
-        if(this.timeDone > this.data.getInfo().getTotalTime()) {
-            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
-            if(this.data.isLoop()) {
+
+        if(this.timeDone > this.data.getInfo().getLoopingData().getEnd()) {
+            if(this.data.getInfo().getLoopingData() != null && !this.isLooping && !this.loopFinishedMarker && !this.loopEndingMarker && this.data.shouldLoop()) {
+                AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.isLooping = true;
-                this.timeDone = 0;
+                this.timeDone -= this.data.getInfo().getLoopingData().getEnd();
                 this.animateLoopingFrame();
-            } else {
-                this.finish();
+                return;
             }
-            return;
+            this.loopEndingMarker = true;
+        }
+
+        boolean finished = this.timeDone > this.data.getInfo().getTotalTime();
+        if(finished) {
+            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
+            this.finish();
         }
 
         super.animateAtTime(this.timeDone);
+
+        if(finished) {
+            return;
+        }
 
         for (AnimationEventInfo event : this.data.getInfo().getSortedEvents()[(int) this.timeDone]) {
             if(event.getTime() >= previousTime && event.getTime() < this.timeDone) {
@@ -91,9 +102,13 @@ public class AnimationEntry extends AnimationConsumer {
         }
     }
 
+    public void markFinishedLooping() {
+        this.loopFinishedMarker = true;
+    }
+
     private void animateLoopingFrame() {
         this.renderFromCaptured (
-            1 - this.timeDone/this.data.getInfo().getLoopStartTime(),
+            1 - this.timeDone/this.data.getInfo().getLoopingData().getDuration(),
             this.data.getInfo().getLoopedKeyframe().getPositionMap(),
             this.data.getInfo().getLoopedKeyframe().getRotationMap(),
             this.data.getInfo().getLoopedKeyframe().getCubeGrowMap()

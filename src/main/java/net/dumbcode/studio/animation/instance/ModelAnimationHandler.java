@@ -66,7 +66,13 @@ public class ModelAnimationHandler {
         if(entry != null) {
             entry.finish();
         }
+    }
 
+    public void finishLooping(UUID uuid) {
+        AnimationEntry entry = this.entries.get(uuid);
+        if(entry != null) {
+            entry.markFinishedLooping();
+        }
     }
 
     void removeEntry(UUID uuid) {

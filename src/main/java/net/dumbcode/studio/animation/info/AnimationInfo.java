@@ -3,10 +3,7 @@ package net.dumbcode.studio.animation.info;
 import net.dumbcode.studio.animation.instance.AnimationCapture;
 import net.dumbcode.studio.model.RotationOrder;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class AnimationInfo {
@@ -16,25 +13,20 @@ public class AnimationInfo {
     private final int version;
     private final RotationOrder order;
     //Nullable
-    private final KeyframeHeader.LoopingData loopingData;
+    private KeyframeHeader.LoopingData loopingData;
     private final List<KeyframeInfo> keyframes = new ArrayList<>();
     private final List<AnimationEventInfo> animationEvents = new ArrayList<>();
     private float totalTime = 0;
-    private float loopStartTime;
+//    private float loopStartTime;
 
     private KeyframeInfo loopedKeyframe;
 
     private AnimationEventInfo[][] sortedEvents;
 
     public AnimationInfo(int version, RotationOrder order, KeyframeHeader.LoopingData loopingData) {
-        this(version, order, loopingData, -1);
-    }
-
-    public AnimationInfo(int version, RotationOrder order, KeyframeHeader.LoopingData loopingData, float loopStartTime) {
         this.version = version;
         this.order = order;
         this.loopingData = loopingData;
-        this.loopStartTime = loopStartTime;
     }
 
     public int getVersion() {
@@ -64,29 +56,76 @@ public class AnimationInfo {
             )
             .toArray(AnimationEventInfo[][]::new);
 
-
-        if(this.loopStartTime == -1) {
-            this.loopStartTime = this.keyframes.stream()
-                .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
-                .map(kf -> kf.getStartTime() + kf.getDuration())
-                .orElse(-1F);
+        if(this.loopingData != null) {
+            this.recalculateLooping();
         }
-        this.setLoopStartTime(this.loopStartTime);
     }
 
     public float getTotalTime() {
         return totalTime;
     }
 
+    public KeyframeHeader.LoopingData getLoopingData() {
+        return loopingData;
+    }
+
     public AnimationInfo setLoopStartTime(float loopStartTime) {
-        this.loopStartTime = loopStartTime;
-        this.loopedKeyframe = new KeyframeInfo(0, loopStartTime, -1);
-        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), loopStartTime, this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap(), this.loopedKeyframe.getCubeGrowMap());
         return this;
     }
 
-    public float getLoopStartTime() {
-        return loopStartTime;
+    public AnimationInfo recalculateLooping() {
+        if(this.loopingData == null) {
+            return this;
+        }
+
+        this.loopedKeyframe = new KeyframeInfo(this.loopingData.getEnd(), this.loopingData.getDuration(), -1);
+
+//        Map<String, float[]> positionMap = new HashMap<>();
+//        Map<String, float[]> rotationMap = new HashMap<>();
+//        Map<String, float[]> cubeGrowMap = new HashMap<>();
+
+        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), this.loopingData.getStart(), this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap(), this.loopedKeyframe.getCubeGrowMap());
+//        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), this.loopingData.getStart(), positionMap, rotationMap, cubeGrowMap);
+
+        return this;
+    }
+
+    private void ensureLoopingData() {
+        if(this.loopingData == null) {
+            this.loopingData = new KeyframeHeader.LoopingData(
+                this.totalTime,
+                this.keyframes.stream()
+                    .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
+                    .map(kf -> kf.getStartTime() + kf.getDuration())
+                    .orElse(0F),
+                5F);
+        }
+    }
+
+    public AnimationInfo setLoopingStart(float start) {
+        this.ensureLoopingData();
+        this.loopingData.setStart(start);
+        this.recalculateLooping();
+        return this;
+    }
+
+    public AnimationInfo setLoopingEnd(float end) {
+        this.ensureLoopingData();
+        this.loopingData.setEnd(end);
+        this.recalculateLooping();
+        return this;
+    }
+
+    public AnimationInfo setLoopingDuration(float duration) {
+        this.ensureLoopingData();
+        this.loopingData.setDuration(duration);
+        this.recalculateLooping();
+        return this;
+    }
+
+    public AnimationInfo setLoopingData(float start, float end, float duration) {
+        this.loopingData = new KeyframeHeader.LoopingData(start, end, duration);
+        return this;
     }
 
     public KeyframeInfo getLoopedKeyframe() {
@@ -106,8 +145,10 @@ public class AnimationInfo {
     public String toString() {
         return "AnimationInfo{" +
             "version=" + version +
-            ", keyframes=" + keyframes +
-            ", animationEvents=" + animationEvents +
+            ", loopingData=" + loopingData +
+            ", keyframes=" + keyframes.size() +
+            ", animationEvents=" + animationEvents.size() +
+            ", totalTime=" + totalTime +
             '}';
     }
 }
