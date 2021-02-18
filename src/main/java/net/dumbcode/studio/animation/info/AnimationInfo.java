@@ -12,6 +12,8 @@ public class AnimationInfo {
 
     private final int version;
     private final RotationOrder order;
+    //Nullable
+    private final boolean shouldComputeLoopingData;
     private KeyframeHeader.LoopingData loopingData;
     private final List<KeyframeInfo> keyframes = new ArrayList<>();
     private final List<AnimationEventInfo> animationEvents = new ArrayList<>();
@@ -26,6 +28,7 @@ public class AnimationInfo {
         this.version = version;
         this.order = order;
         this.loopingData = loopingData;
+        this.shouldComputeLoopingData = loopingData == null;
     }
 
     public int getVersion() {
@@ -55,15 +58,7 @@ public class AnimationInfo {
             )
             .toArray(AnimationEventInfo[][]::new);
 
-        if(this.loopingData == null) {
-            this.loopingData = new KeyframeHeader.LoopingData(
-                this.keyframes.stream()
-                    .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
-                    .map(kf -> kf.getStartTime() + kf.getDuration())
-                    .orElse(0F),
-                this.totalTime,
-                0.5F);
-        }
+        this.ensureLoopingData();
         this.recalculateLooping();
     }
 
@@ -82,16 +77,21 @@ public class AnimationInfo {
 
         this.loopedKeyframe = new KeyframeInfo(this.loopingData.getEnd(), this.loopingData.getDuration(), -1);
 
-//        Map<String, float[]> positionMap = new HashMap<>();
-//        Map<String, float[]> rotationMap = new HashMap<>();
-//        Map<String, float[]> cubeGrowMap = new HashMap<>();
-
         AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), this.loopingData.getStart(), this.loopedKeyframe.getPositionMap(), this.loopedKeyframe.getRotationMap(), this.loopedKeyframe.getCubeGrowMap());
-//        AnimationCapture.CAPTURE.captureAnimation(this.getKeyframes(), this.loopingData.getStart(), positionMap, rotationMap, cubeGrowMap);
-
         return this;
     }
 
+    private void ensureLoopingData() {
+        if(this.shouldComputeLoopingData) {
+            this.loopingData = new KeyframeHeader.LoopingData(
+                this.keyframes.stream()
+                    .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
+                    .map(kf -> kf.getStartTime() + kf.getDuration())
+                    .orElse(0F),
+                this.totalTime,
+                0.5F);
+        }
+    }
 
     public AnimationInfo setLoopingStart(float start) {
         this.loopingData.setStart(start);
