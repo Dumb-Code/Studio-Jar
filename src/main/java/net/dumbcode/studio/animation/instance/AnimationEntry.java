@@ -16,7 +16,6 @@ public class AnimationEntry extends AnimationConsumer {
     private final UUID uuid;
 
     private boolean isLooping;
-    private boolean loopFinishedMarker;
     private boolean loopEndingMarker;
     private float timeDone;
 
@@ -69,7 +68,7 @@ public class AnimationEntry extends AnimationConsumer {
         }
 
         if(this.timeDone > this.data.getInfo().getLoopingData().getEnd()) {
-            if(this.data.getInfo().getLoopingData() != null && !this.isLooping && !this.loopFinishedMarker && !this.loopEndingMarker && this.data.shouldLoop()) {
+            if(this.data.getInfo().getLoopingData() != null && !this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
                 AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.isLooping = true;
                 this.timeDone -= this.data.getInfo().getLoopingData().getEnd();
@@ -100,10 +99,6 @@ public class AnimationEntry extends AnimationConsumer {
                 }
             }
         }
-    }
-
-    public void markFinishedLooping() {
-        this.loopFinishedMarker = true;
     }
 
     private void animateLoopingFrame() {
