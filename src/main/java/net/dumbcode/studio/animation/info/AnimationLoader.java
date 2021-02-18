@@ -16,14 +16,14 @@ public class AnimationLoader {
 
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
         ByteBuffer buffer = new ByteBuffer(stream);
-        RotationOrder current = RotationOrder.ZYX; //TODO: load from dca 
+        RotationOrder current = RotationOrder.ZYX; //TODO: load from dca
         AnimationInfo info = new AnimationInfo(buffer.readInt(), current);
 
         if(info.getVersion() < MINIMUM_VERSION) {
             throw new IOException("Animation Needs to be at least version: " + MINIMUM_VERSION + ". Got:" + info.getVersion());
         }
         if(info.getVersion() > MAXIMUM_VERSION) {
-            throw new IOException("Animation is too advanced. Please update studio jar. Maximum supported:" + MINIMUM_VERSION + ". Got:" + info.getVersion());
+            throw new IOException("Animation is too advanced. Please update studio jar. Maximum supported:" + MAXIMUM_VERSION + ". Got:" + info.getVersion());
         }
 
         int size = buffer.readInt();
