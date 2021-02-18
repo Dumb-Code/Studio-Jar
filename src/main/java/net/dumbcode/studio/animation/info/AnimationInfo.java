@@ -1,12 +1,12 @@
 package net.dumbcode.studio.animation.info;
 
 import net.dumbcode.studio.animation.instance.AnimationCapture;
-import net.dumbcode.studio.animation.instance.AnimationEntry;
 import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 public class AnimationInfo {
@@ -51,7 +51,7 @@ public class AnimationInfo {
     }
 
     public void generatedCachedData() {
-        this.totalTime = (float) this.keyframes.stream().mapToDouble(kf -> kf.getStartTime() + kf.getDuration()).max().orElseThrow();
+        this.totalTime = (float) this.keyframes.stream().mapToDouble(kf -> kf.getStartTime() + kf.getDuration()).max().orElseThrow(NoSuchElementException::new);
 
         this.sortedEvents = IntStream.range(0, (int)this.totalTime + 1)
             .mapToObj(i ->
