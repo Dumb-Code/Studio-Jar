@@ -12,7 +12,6 @@ public class AnimationInfo {
 
     private final int version;
     private final RotationOrder order;
-    //Nullable
     private KeyframeHeader.LoopingData loopingData;
     private final List<KeyframeInfo> keyframes = new ArrayList<>();
     private final List<AnimationEventInfo> animationEvents = new ArrayList<>();
@@ -56,9 +55,16 @@ public class AnimationInfo {
             )
             .toArray(AnimationEventInfo[][]::new);
 
-        if(this.loopingData != null) {
-            this.recalculateLooping();
+        if(this.loopingData == null) {
+            this.loopingData = new KeyframeHeader.LoopingData(
+                this.keyframes.stream()
+                    .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
+                    .map(kf -> kf.getStartTime() + kf.getDuration())
+                    .orElse(0F),
+                this.totalTime,
+                0.5F);
         }
+        this.recalculateLooping();
     }
 
     public float getTotalTime() {
@@ -67,10 +73,6 @@ public class AnimationInfo {
 
     public KeyframeHeader.LoopingData getLoopingData() {
         return loopingData;
-    }
-
-    public AnimationInfo setLoopStartTime(float loopStartTime) {
-        return this;
     }
 
     public AnimationInfo recalculateLooping() {
@@ -90,34 +92,20 @@ public class AnimationInfo {
         return this;
     }
 
-    private void ensureLoopingData() {
-        if(this.loopingData == null) {
-            this.loopingData = new KeyframeHeader.LoopingData(
-                this.totalTime,
-                this.keyframes.stream()
-                    .min(Comparator.comparingDouble(KeyframeInfo::getStartTime))
-                    .map(kf -> kf.getStartTime() + kf.getDuration())
-                    .orElse(0F),
-                5F);
-        }
-    }
 
     public AnimationInfo setLoopingStart(float start) {
-        this.ensureLoopingData();
         this.loopingData.setStart(start);
         this.recalculateLooping();
         return this;
     }
 
     public AnimationInfo setLoopingEnd(float end) {
-        this.ensureLoopingData();
         this.loopingData.setEnd(end);
         this.recalculateLooping();
         return this;
     }
 
     public AnimationInfo setLoopingDuration(float duration) {
-        this.ensureLoopingData();
         this.loopingData.setDuration(duration);
         this.recalculateLooping();
         return this;

@@ -35,5 +35,14 @@ public class KeyframeHeader {
         public void setDuration(float duration) {
             this.duration = duration;
         }
+
+        @Override
+        public String toString() {
+            return "LoopingData{" +
+                "start=" + start +
+                ", end=" + end +
+                ", duration=" + duration +
+                '}';
+        }
     }
 }

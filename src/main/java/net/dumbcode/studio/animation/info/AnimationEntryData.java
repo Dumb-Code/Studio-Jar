@@ -4,14 +4,14 @@ import java.util.function.Supplier;
 
 public class AnimationEntryData {
     private final AnimationInfo info;
-    private Supplier<Boolean> loopUntil = () -> false;
+    private Supplier<Boolean> loopUntil = () -> true;
 
     public AnimationEntryData(AnimationInfo info) {
         this.info = info;
     }
 
     public AnimationEntryData loopForever() {
-        return this.loopUntil(() -> true);
+        return this.loopUntil(() -> false);
     }
 
     public AnimationEntryData loopUntil(Supplier<Boolean> condition) {

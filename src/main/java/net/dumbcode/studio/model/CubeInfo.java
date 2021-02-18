@@ -122,13 +122,15 @@ public class CubeInfo {
         int h = this.dimensions[1];
         int d = this.dimensions[2];
 
+        boolean tm = this.textureMirrored;
+
         //1, 3, 4, 5, 0, 2
-        this.generateFace(this.generatedUVs[0], d+w, d, d, h);      //+x
-        this.generateFace(this.generatedUVs[1], 0, d, d, h);        //-x
-        this.generateFace(this.generatedUVs[2], d, 0, w, d);        //+y
-        this.generateFace(this.generatedUVs[3], d+w, 0, w, d); //-y
-        this.generateFace(this.generatedUVs[4], d+w+d, d, w, h);    //+z
-        this.generateFace(this.generatedUVs[5], d, d, w, h);             //-z
+        this.generateFace(this.generatedUVs[tm ? 1 : 0], d, d+h, -d, -h);           //+x
+        this.generateFace(this.generatedUVs[tm ? 0 : 1],  d+w+d, d+h, -d, -h); //-x
+        this.generateFace(this.generatedUVs[2], d+w, d, w, -d);                     //-y
+        this.generateFace(this.generatedUVs[3], d, 0, w, d);                        //+y
+        this.generateFace(this.generatedUVs[4], d+w+d+w, d+h, -w, -h);         //+z
+        this.generateFace(this.generatedUVs[5], d+w, d+h, -w, -h);             //-z
     }
 
     private void generateFace(float[] data, int offU, int offV, int heightU, int heightV) {
@@ -137,6 +139,11 @@ public class CubeInfo {
 
         int u = this.textureOffset[0];
         int v = this.textureOffset[1];
+
+        if(this.textureMirrored) {
+            offU += heightU;
+            heightU *= -1;
+        }
 
         data[0] = (u + offU) / w;
         data[1] = (v + offV) / h ;

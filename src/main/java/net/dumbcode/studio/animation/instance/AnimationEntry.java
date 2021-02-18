@@ -8,7 +8,7 @@ import java.util.*;
 
 public class AnimationEntry extends AnimationConsumer {
 
-    public static float cooldownTime = 10;
+    public static float cooldownTime = 0.5F;
     private static final float[] EMPTY = new float[3];
 
     private final ModelAnimationHandler model;
@@ -68,7 +68,8 @@ public class AnimationEntry extends AnimationConsumer {
         }
 
         if(this.timeDone > this.data.getInfo().getLoopingData().getEnd()) {
-            if(this.data.getInfo().getLoopingData() != null && !this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
+            System.out.println(!this.isLooping + ", " + !this.loopEndingMarker + ", " + this.data.shouldLoop());
+            if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
                 AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.isLooping = true;
                 this.timeDone -= this.data.getInfo().getLoopingData().getEnd();
