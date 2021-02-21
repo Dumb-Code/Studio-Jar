@@ -68,7 +68,6 @@ public class AnimationEntry extends AnimationConsumer {
         }
 
         if(this.timeDone > this.data.getInfo().getLoopingData().getEnd()) {
-            System.out.println(!this.isLooping + ", " + !this.loopEndingMarker + ", " + this.data.shouldLoop());
             if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
                 AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.isLooping = true;
