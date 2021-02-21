@@ -121,7 +121,11 @@ public class AnimationEntry extends AnimationConsumer {
 
 
     }
-    public void renderFromCaptured(float time, Map<String, float[]> posOffset, Map<String, float[]> rotOffset, Map<String, float[]> cubeGrowOff) {
+    public void renderFromCaptured(float timeIn, Map<String, float[]> posOffset, Map<String, float[]> rotOffset, Map<String, float[]> cubeGrowOff) {
+        if(timeIn < 0) timeIn = 0;
+        if(timeIn > 1) timeIn = 1;
+
+        float time = timeIn;
         float invTime = 1 - time;
         this.capturedPositionData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
