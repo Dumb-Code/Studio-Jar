@@ -1,7 +1,7 @@
 package net.dumbcode.studio.animation.info;
 
 import net.dumbcode.studio.model.RotationOrder;
-import net.dumbcode.studio.util.ByteBuffer;
+import net.dumbcode.studio.util.StudioInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ public class AnimationLoader {
     private static final int VER_INVERTED_ROT_XY = 10;
 
     public static AnimationInfo loadAnimation(InputStream stream) throws IOException {
-        ByteBuffer buffer = new ByteBuffer(stream);
+        StudioInputStream buffer = new StudioInputStream(stream);
         RotationOrder current = RotationOrder.ZYX; //TODO: load from dca
         int version = buffer.readInt();
         AnimationInfo info = new AnimationInfo(version, current, readLoopingData(buffer, version));
@@ -41,7 +41,7 @@ public class AnimationLoader {
         return info;
     }
 
-    private static KeyframeHeader.LoopingData readLoopingData(ByteBuffer buffer, int version) throws IOException {
+    private static KeyframeHeader.LoopingData readLoopingData(StudioInputStream buffer, int version) throws IOException {
         if(version >= VER_LOOPING_DATA && buffer.readBoolean()) {
             return new KeyframeHeader.LoopingData(
                 buffer.readFloat(),
@@ -52,7 +52,7 @@ public class AnimationLoader {
         return null;
     }
 
-    private static KeyframeInfo readKeyframe(ByteBuffer buffer, int version) throws IOException {
+    private static KeyframeInfo readKeyframe(StudioInputStream buffer, int version) throws IOException {
         KeyframeInfo keyframe = new KeyframeInfo(readTime(buffer, version), readTime(buffer, version), buffer.readInt());
 
         readKeyframeMap(buffer, keyframe.getRotationMap(), (float) (Math.PI/180));
@@ -75,7 +75,7 @@ public class AnimationLoader {
         return keyframe;
     }
 
-    private static float readTime(ByteBuffer buffer, int version) throws IOException {
+    private static float readTime(StudioInputStream buffer, int version) throws IOException {
         float time = buffer.readFloat();
         if(version < VER_TIME_CHANGE) {
             return time / 20F;
@@ -83,21 +83,21 @@ public class AnimationLoader {
         return time;
     }
 
-    private static void readKeyframeMap(ByteBuffer buffer, Map<String, float[]> map, float modifier) throws IOException {
+    private static void readKeyframeMap(StudioInputStream buffer, Map<String, float[]> map, float modifier) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             map.put(buffer.readString(), new float[] { buffer.readFloat()*modifier, buffer.readFloat()*modifier, buffer.readFloat()*modifier });
         }
     }
 
-    private static void readProgressionPoints(ByteBuffer buffer, List<float[]> progressionPoints) throws IOException {
+    private static void readProgressionPoints(StudioInputStream buffer, List<float[]> progressionPoints) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             progressionPoints.add(new float[] {buffer.readFloat(), buffer.readFloat() } );
         }
     }
 
-    private static void readAnimationEvents(ByteBuffer buffer, List<AnimationEventInfo> events, int version) throws IOException {
+    private static void readAnimationEvents(StudioInputStream buffer, List<AnimationEventInfo> events, int version) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             AnimationEventInfo info = new AnimationEventInfo(readTime(buffer, version));
