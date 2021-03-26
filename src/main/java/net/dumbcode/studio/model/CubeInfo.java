@@ -1,8 +1,8 @@
 package net.dumbcode.studio.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import net.dumbcode.studio.util.RotationReorder;
+
+import java.util.*;
 
 public class CubeInfo {
     private final ModelInfo model;
@@ -15,10 +15,15 @@ public class CubeInfo {
     private final boolean textureMirrored;
     private final float[] cubeGrow;
     private final List<CubeInfo> children = new ArrayList<>();
+    private final RotationOrder rotationOrder;
 
     private final float[][] generatedUVs = new float[6][4];
+    private final Map<RotationOrder, float[]> allDefaultRotations = new EnumMap<>(RotationOrder.class);
 
     public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow) {
+        this(model, name, dimensions, rotationPoint, offset,rotation, textureOffset, textureMirrored, cubeGrow, RotationOrder.ZYX);
+    }
+    public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow, RotationOrder current) {
         this.model = model;
         this.name = name;
         this.dimensions = dimensions;
@@ -28,7 +33,9 @@ public class CubeInfo {
         this.textureOffset = textureOffset;
         this.textureMirrored = textureMirrored;
         this.cubeGrow = cubeGrow;
+        this.rotationOrder = current;
         this.generateUVS();
+        this.generateAllDefaultRotations();
     }
 
     public String getName() {
@@ -75,6 +82,14 @@ public class CubeInfo {
         return generatedUVs;
     }
 
+    public RotationOrder getRotationOrder() {
+        return rotationOrder;
+    }
+
+    public float[] getRotationFor(RotationOrder order) {
+        return this.allDefaultRotations.get(order);
+    }
+
     @Override
     public String toString() {
         return "CubeInfo{" +
@@ -87,6 +102,12 @@ public class CubeInfo {
             ", textureMirrored=" + textureMirrored +
             ", cubeGrow=" + Arrays.toString(cubeGrow) +
             '}';
+    }
+
+    public void generateAllDefaultRotations() {
+        for (RotationOrder value : RotationOrder.values()) {
+            this.allDefaultRotations.put(value, RotationReorder.reorder(Arrays.copyOf(this.rotation, 3), this.rotationOrder, value));
+        }
     }
 
     /**

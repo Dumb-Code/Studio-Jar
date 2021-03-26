@@ -26,7 +26,10 @@ public class ModelWriter {
             buffer.writeIntArray(info.getDimensions(), 3);
             buffer.writeFloatArray(info.getRotationPoint(), 3);
             buffer.writeFloatArray(info.getOffset(), 3);
-            buffer.writeFloatArray(info.getRotation(), 3);
+            float[] rotation = info.getRotationFor(RotationOrder.ZYX);
+            for (int i = 0; i < 3; i++) {
+                buffer.writeFloat((float) Math.toDegrees(rotation[i]));
+            }
             buffer.writeIntArray(info.getTextureOffset(), 2);
             buffer.writeBoolean(info.isTextureMirrored());
             buffer.writeFloatArray(info.getCubeGrow(), 3);

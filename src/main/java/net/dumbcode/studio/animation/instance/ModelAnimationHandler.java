@@ -11,19 +11,23 @@ public class ModelAnimationHandler {
     //This is not final because we can re-use models for culled objects on other objects.
     private Object src;
 
+    private final RotationOrder order;
+
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
     private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
 
     private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
 
-    public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes) {
-        this(order, allCubes, null);
+    public ModelAnimationHandler() {
+        this(RotationOrder.ZYX);
     }
 
-    public ModelAnimationHandler(RotationOrder order, List<? extends AnimatedCube> allCubes, Object src) {
-        for (AnimatedCube cube : allCubes) {
-            this.cubeDelegates.put(cube.getInfo().getName(), new DelegateCube(cube, order));
-        }
+    public ModelAnimationHandler(RotationOrder order) {
+        this(order, null);
+    }
+
+    public ModelAnimationHandler(RotationOrder order, Object src) {
+        this.order = order;
         this.src = src;
     }
 
@@ -32,7 +36,7 @@ public class ModelAnimationHandler {
     }
 
     //delta -> seconds
-    public void animate(float delta) {
+    public void animate(List<AnimatedCube> cubes, float delta) {
         for (DelegateCube cube : this.cubeDelegates.values()) {
             cube.reset();
         }
@@ -42,8 +46,11 @@ public class ModelAnimationHandler {
             value.animate(delta);
         }
 
-        for (DelegateCube cube : this.cubeDelegates.values()) {
-            cube.apply();
+        for (AnimatedCube cube : cubes) {
+            DelegateCube delegateCube = this.getCube(cube.getInfo().getName());
+            if(delegateCube != null) {
+                delegateCube.apply(cube);
+            }
         }
     }
 
@@ -76,7 +83,7 @@ public class ModelAnimationHandler {
     }
 
     DelegateCube getCube(String name) {
-        return this.cubeDelegates.get(name);
+        return this.cubeDelegates.computeIfAbsent(name, n -> new DelegateCube(this.order));
     }
 
     Object getSrc() {

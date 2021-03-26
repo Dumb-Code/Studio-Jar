@@ -1,5 +1,6 @@
 package net.dumbcode.studio.model;
 
+import net.dumbcode.studio.util.ModelMirrorApplier;
 import net.dumbcode.studio.util.StudioInputStream;
 import net.dumbcode.studio.util.RotationReorder;
 
@@ -14,9 +15,9 @@ public class ModelLoader {
     public static final int MAXIMUM_VERSION = 2;
 
     public static ModelInfo loadModel(InputStream stream) throws IOException {
-        return loadModel(stream, RotationOrder.ZYX);
+        return loadModel(stream, RotationOrder.global, ModelMirror.global);
     }
-    public static ModelInfo loadModel(InputStream stream, RotationOrder order) throws IOException {
+    public static ModelInfo loadModel(InputStream stream, RotationOrder order, ModelMirror mirrorOrder) throws IOException {
         Objects.requireNonNull(order, "Rotation Order is null");
 
         StudioInputStream buffer = new StudioInputStream(stream);
@@ -33,6 +34,10 @@ public class ModelLoader {
 
         ModelInfo info = new ModelInfo(version, buffer.readString(), buffer.readInt(), buffer.readInt(), order);
         readCubeArray(info, buffer, current, order, info.getRoots());
+
+        if(mirrorOrder != ModelMirror.NONE) {
+            ModelMirrorApplier.mirrorCubes(info.getRoots(), mirrorOrder);
+        }
         return info;
     }
 
@@ -48,7 +53,8 @@ public class ModelLoader {
                 buffer.readFloatArray(3),
                 buffer.readIntArray(2),
                 buffer.readBoolean(),
-                buffer.readFloatArray(3)
+                buffer.readFloatArray(3),
+                current
             );
             RotationReorder.reorder(info.getRotation(), current, target);
             readCubeArray(parent, buffer, current, target, info.getChildren());

@@ -8,6 +8,8 @@ public enum RotationOrder {
     YZX(1, 2, 0),
     XZY(0, 2, 1);
 
+    public static RotationOrder global = ZYX;
+
     private final int first;
     private final int second;
     private final int third;
@@ -16,6 +18,10 @@ public enum RotationOrder {
         this.first = first;
         this.second = second;
         this.third = third;
+    }
+
+    public void applyAsGlobal() {
+        global = this;
     }
 
     public int getFirst() {

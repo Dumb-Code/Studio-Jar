@@ -10,6 +10,7 @@ public class RotationReorder {
         if(from == to) {
             return arr;
         }
+
         double[] quat = createQuaternion(arr, from);
         double[] matrix = makeRotationMatrix(quat);
         double[] angles = createEulerFromMatrix(matrix, to);
@@ -21,7 +22,7 @@ public class RotationReorder {
         return arr;
     }
 
-    private static double[] createEulerFromMatrix(double[] matrix, RotationOrder order) {
+    public static double[] createEulerFromMatrix(double[] matrix, RotationOrder order) {
         double m11 = matrix[0], m12 = matrix[3], m13 = matrix[6];
         double m21 = matrix[1], m22 = matrix[4], m23 = matrix[7];
         double m31 = matrix[2], m32 = matrix[5], m33 = matrix[8];
