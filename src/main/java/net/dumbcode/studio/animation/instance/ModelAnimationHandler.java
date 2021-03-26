@@ -11,23 +11,16 @@ public class ModelAnimationHandler {
     //This is not final because we can re-use models for culled objects on other objects.
     private Object src;
 
-    private final RotationOrder order;
-
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
     private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
 
     private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
 
     public ModelAnimationHandler() {
-        this(RotationOrder.ZYX);
+        this(null);
     }
 
-    public ModelAnimationHandler(RotationOrder order) {
-        this(order, null);
-    }
-
-    public ModelAnimationHandler(RotationOrder order, Object src) {
-        this.order = order;
+    public ModelAnimationHandler(Object src) {
         this.src = src;
     }
 
@@ -36,7 +29,7 @@ public class ModelAnimationHandler {
     }
 
     //delta -> seconds
-    public void animate(List<AnimatedCube> cubes, float delta) {
+    public void animate(Iterable<? extends AnimatedCube> cubes, float delta) {
         for (DelegateCube cube : this.cubeDelegates.values()) {
             cube.reset();
         }
@@ -47,10 +40,7 @@ public class ModelAnimationHandler {
         }
 
         for (AnimatedCube cube : cubes) {
-            DelegateCube delegateCube = this.getCube(cube.getInfo().getName());
-            if(delegateCube != null) {
-                delegateCube.apply(cube);
-            }
+            this.getCube(cube.getInfo().getName()).apply(cube);
         }
     }
 
@@ -83,7 +73,7 @@ public class ModelAnimationHandler {
     }
 
     DelegateCube getCube(String name) {
-        return this.cubeDelegates.computeIfAbsent(name, n -> new DelegateCube(this.order));
+        return this.cubeDelegates.computeIfAbsent(name, n -> new DelegateCube());
     }
 
     Object getSrc() {

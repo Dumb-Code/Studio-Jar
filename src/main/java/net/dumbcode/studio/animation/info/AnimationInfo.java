@@ -8,7 +8,8 @@ import java.util.stream.IntStream;
 
 public class AnimationInfo {
 
-    private static final AnimationEventInfo[] EMPTY = new AnimationEventInfo[0];
+    public static final AnimationInfo EMPTY = new AnimationInfo(-1, RotationOrder.global, null);
+    private static final AnimationEventInfo[] EMPTY_EVENT_INFO = new AnimationEventInfo[0];
 
     private final int version;
     private final RotationOrder order;
@@ -54,7 +55,7 @@ public class AnimationInfo {
             .mapToObj(i ->
                 this.animationEvents.stream()
                     .filter(e -> i == (int)e.getTime())
-                    .toArray(value -> value == 0 ? EMPTY : new AnimationEventInfo[value])
+                    .toArray(value -> value == 0 ? EMPTY_EVENT_INFO : new AnimationEventInfo[value])
             )
             .toArray(AnimationEventInfo[][]::new);
 
