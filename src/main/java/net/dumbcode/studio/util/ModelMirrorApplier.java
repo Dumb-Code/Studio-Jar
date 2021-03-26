@@ -114,8 +114,6 @@ public class ModelMirrorApplier {
 
         double[] t = new double[] { toMove0[0]+toMove1[0], toMove0[1]+toMove1[1], toMove0[2]+toMove1[2] };
 
-        System.out.println(Arrays.toString(data.base));
-
         double[] appliedToMove = new double[] {
             (t[0]*m[0] + t[1]*m[1] + t[2]*m[2])/2,
             (t[0]*m[4] + t[1]*m[5] + t[2]*m[6])/2,
