@@ -170,4 +170,8 @@ public class AnimationEntry extends AnimationConsumer {
     public UUID getUuid() {
         return uuid;
     }
+
+    public AnimationEntryData getData() {
+        return data;
+    }
 }

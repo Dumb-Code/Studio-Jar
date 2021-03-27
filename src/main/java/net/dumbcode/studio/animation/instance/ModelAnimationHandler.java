@@ -54,6 +54,12 @@ public class ModelAnimationHandler {
         return uuid;
     }
 
+    public void markAllRemoved() {
+        for (AnimationEntry value : this.entries.values()) {
+            value.finish();
+        }
+    }
+
     public boolean isPlaying(UUID uuid) {
         return this.entries.containsKey(uuid);
     }
@@ -63,6 +69,14 @@ public class ModelAnimationHandler {
         if(entry != null) {
             entry.finish();
         }
+    }
+
+    public AnimationInfo getInfo(UUID uuid) {
+        AnimationEntry entry = this.entries.get(uuid);
+        if(entry != null) {
+            return entry.getData().getInfo();
+        }
+        return null;
     }
 
     void removeEntry(UUID uuid) {
