@@ -6,23 +6,17 @@ import java.util.Objects;
 
 public class ModelInfo {
 
-    private final int version;
     private final String author;
     private final int textureWidth;
     private final int textureHeight;
     private final RotationOrder order;
     private final List<CubeInfo> roots = new ArrayList<>();
 
-    public ModelInfo(int version, String author, int textureWidth, int textureHeight, RotationOrder order) {
-        this.version = version;
+    public ModelInfo(String author, int textureWidth, int textureHeight, RotationOrder order) {
         this.author = author;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
         this.order = order;
-    }
-
-    public int getVersion() {
-        return this.version;
     }
 
     public String getAuthor() {
@@ -48,11 +42,11 @@ public class ModelInfo {
     @Override
     public String toString() {
         return "ModelInfo{" +
-            "version=" + version +
-            ", author='" + author + '\'' +
+            "author='" + author + '\'' +
             ", textureWidth=" + textureWidth +
             ", textureHeight=" + textureHeight +
             ", order=" + order +
+            ", roots=" + roots.size() +
             '}';
     }
 
@@ -61,8 +55,7 @@ public class ModelInfo {
         if (this == o) return true;
         if (!(o instanceof ModelInfo)) return false;
         ModelInfo modelInfo = (ModelInfo) o;
-        return getVersion() == modelInfo.getVersion() &&
-            getTextureWidth() == modelInfo.getTextureWidth() &&
+        return getTextureWidth() == modelInfo.getTextureWidth() &&
             getTextureHeight() == modelInfo.getTextureHeight() &&
             Objects.equals(getAuthor(), modelInfo.getAuthor()) &&
             order == modelInfo.order &&
@@ -71,6 +64,6 @@ public class ModelInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getVersion(), getAuthor(), getTextureWidth(), getTextureHeight(), order, getRoots());
+        return Objects.hash(getAuthor(), getTextureWidth(), getTextureHeight(), order, getRoots());
     }
 }

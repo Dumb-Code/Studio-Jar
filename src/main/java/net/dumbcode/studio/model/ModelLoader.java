@@ -32,7 +32,7 @@ public class ModelLoader {
             throw new IOException("Animation is too advanced. Please update studio jar. Maximum supported:" + MAXIMUM_VERSION + ". Got:" + version);
         }
 
-        ModelInfo info = new ModelInfo(version, buffer.readString(), buffer.readInt(), buffer.readInt(), order);
+        ModelInfo info = new ModelInfo(buffer.readString(), buffer.readInt(), buffer.readInt(), order);
         readCubeArray(info, buffer, current, order, info.getRoots());
 
         if(mirrorOrder != ModelMirror.NONE) {

@@ -21,7 +21,7 @@ public class CubeInfo {
     private final Map<RotationOrder, float[]> allDefaultRotations = new EnumMap<>(RotationOrder.class);
 
     public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow) {
-        this(model, name, dimensions, rotationPoint, offset,rotation, textureOffset, textureMirrored, cubeGrow, RotationOrder.ZYX);
+        this(model, name, dimensions, rotationPoint, offset,rotation, textureOffset, textureMirrored, cubeGrow, RotationOrder.global);
     }
     public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow, RotationOrder current) {
         this.model = model;

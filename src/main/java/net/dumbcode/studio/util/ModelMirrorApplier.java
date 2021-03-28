@@ -429,7 +429,7 @@ public class ModelMirrorApplier {
             double t13 = n13 * n24 * n42 - n14 * n23 * n42 + n14 * n22 * n43 - n12 * n24 * n43 - n13 * n22 * n44 + n12 * n23 * n44;
             double t14 = n14 * n23 * n32 - n13 * n24 * n32 - n14 * n22 * n33 + n12 * n24 * n33 + n13 * n22 * n34 - n12 * n23 * n34;
 
-            var det = n11 * t11 + n21 * t12 + n31 * t13 + n41 * t14;
+            double det = n11 * t11 + n21 * t12 + n31 * t13 + n41 * t14;
 
             if ( det == 0 ) {
                 System.out.println(".getInverse() can't invert matrix, determinant is 0");
@@ -442,7 +442,7 @@ public class ModelMirrorApplier {
 
             }
 
-            var detInv = 1 / det;
+            double detInv = 1 / det;
 
             double[] o = new double[16];
 
