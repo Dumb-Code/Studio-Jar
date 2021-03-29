@@ -14,6 +14,10 @@ public class DelegateCube {
     private final float[] position = new float[3];
     private final float[] cubeDims = new float[3];
 
+    public DelegateCube() {
+        reset();
+    }
+
     public void apply(AnimatedCube cube) {
         CubeInfo info = cube.getInfo();
         float[] modelD = info.getRotationFor(info.getRotationOrder());
