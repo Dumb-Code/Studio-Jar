@@ -16,11 +16,15 @@ public class StudioInputStream {
     public float readFloat() throws IOException {
         return this.stream.readFloat();
     }
-
+    
     public float[] readFloatArray(int size) throws IOException {
+        return readFloatArray(size, 1);
+    }
+
+    public float[] readFloatArray(int size, float modifier) throws IOException {
         float[] out = new float[size];
         for (int i = 0; i < out.length; i++) {
-            out[i] = this.readFloat();
+            out[i] = this.readFloat()*modifier;
         }
         return out;
     }

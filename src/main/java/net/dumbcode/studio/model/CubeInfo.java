@@ -29,7 +29,7 @@ public class CubeInfo {
         this.dimensions = dimensions;
         this.rotationPoint = rotationPoint;
         this.offset = offset;
-        this.rotation = new float[] {(float) (rotation[0]*Math.PI/180), (float) (rotation[1]*Math.PI/180), (float) (rotation[2]*Math.PI/180)};
+        this.rotation = rotation;
         this.textureOffset = textureOffset;
         this.textureMirrored = textureMirrored;
         this.cubeGrow = cubeGrow;

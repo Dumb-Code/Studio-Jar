@@ -29,7 +29,7 @@ public class ModelLoader {
             throw new IOException("Model Needs to be at least version: " + MINIMUM_VERSION + ". Got:" + version);
         }
         if(version > MAXIMUM_VERSION) {
-            throw new IOException("Animation is too advanced. Please update studio jar. Maximum supported:" + MAXIMUM_VERSION + ". Got:" + version);
+            throw new IOException("Model is too advanced. Please update studio jar. Maximum supported:" + MAXIMUM_VERSION + ". Got:" + version);
         }
 
         ModelInfo info = new ModelInfo(buffer.readString(), buffer.readInt(), buffer.readInt(), order);
@@ -50,7 +50,7 @@ public class ModelLoader {
                 buffer.readIntArray(3),
                 buffer.readFloatArray(3),
                 buffer.readFloatArray(3),
-                buffer.readFloatArray(3),
+                buffer.readFloatArray(3, (float) (Math.PI/180)),
                 buffer.readIntArray(2),
                 buffer.readBoolean(),
                 buffer.readFloatArray(3),

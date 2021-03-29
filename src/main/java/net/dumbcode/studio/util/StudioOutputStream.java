@@ -15,8 +15,12 @@ public class StudioOutputStream {
     }
 
     public void writeFloatArray(float[] arr, int size) throws IOException {
+        this.writeFloatArray(arr, size, 1F);
+    }
+
+    public void writeFloatArray(float[] arr, int size, float modifier) throws IOException {
         for (int i = 0; i < size; i++) {
-            this.writeFloat(arr[i]);
+            this.writeFloat(arr[i]*modifier);
         }
     }
 
