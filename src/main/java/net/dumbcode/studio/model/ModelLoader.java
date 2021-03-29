@@ -17,6 +17,11 @@ public class ModelLoader {
     public static ModelInfo loadModel(InputStream stream) throws IOException {
         return loadModel(stream, RotationOrder.global, ModelMirror.global);
     }
+
+    public static ModelInfo loadModel(InputStream stream, RotationOrder order) throws IOException {
+        return loadModel(stream, order, ModelMirror.global);
+    }
+
     public static ModelInfo loadModel(InputStream stream, RotationOrder order, ModelMirror mirrorOrder) throws IOException {
         Objects.requireNonNull(order, "Rotation Order is null");
 
