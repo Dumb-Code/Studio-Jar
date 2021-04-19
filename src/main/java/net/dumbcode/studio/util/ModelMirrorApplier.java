@@ -153,9 +153,9 @@ public class ModelMirrorApplier {
         );
         Function<Boolean, double[]> cubeWorldCorner = farEnd -> {
             double[] pos = farEnd ? new double[] {
-                cube.getDimensions()[0] + 2*cube.getCubeGrow()[0],
-                cube.getDimensions()[1] + 2*cube.getCubeGrow()[1],
-                cube.getDimensions()[2] + 2*cube.getCubeGrow()[2],
+                cube.getDimensions()[0] + cube.getCubeGrow()[0],
+                cube.getDimensions()[1] + cube.getCubeGrow()[1],
+                cube.getDimensions()[2] + cube.getCubeGrow()[2],
             } : new double[3];
             matrix.push();
             matrix.translate(pos);
@@ -191,12 +191,7 @@ public class ModelMirrorApplier {
             xAxis[2], yAxis[2], zAxis[2], 0,
             0, 0, 0, 1
         };
-        double[] newMatrix = Matrix.multiply(positionMatrix, Matrix.multiply(rotationMatrix, new double[]{
-            mat[0], 0, 0, 0,
-            0, mat[5], 0, 0,
-            0, 0, mat[10], 0,
-            0, 0, 0, 1
-        }));
+        double[] newMatrix = Matrix.multiply(positionMatrix, rotationMatrix);
         matrix.pop();
 
         CubeData[] children = new CubeData[cube.getChildren().toArray().length];
