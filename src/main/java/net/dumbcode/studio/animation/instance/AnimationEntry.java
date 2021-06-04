@@ -56,7 +56,7 @@ public class AnimationEntry extends AnimationConsumer {
 
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
-        this.timeDone += deltaTime;
+        this.timeDone += deltaTime * this.data.getSpeed();
         if(this.isLooping) {
             if(this.timeDone > this.data.getInfo().getLoopingData().getDuration()) {
                 this.isLooping = false;
@@ -79,12 +79,12 @@ public class AnimationEntry extends AnimationConsumer {
         }
 
         boolean finished = this.timeDone > this.data.getInfo().getTotalTime();
-        if(finished) {
+        if(finished && !this.data.shouldHold()) {
             AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
             this.finish();
         }
 
-        super.animateAtTime(this.timeDone);
+        super.animateAtTime(this.timeDone, this.data.getDegreeFactor());
 
         if(finished) {
             return;

@@ -20,8 +20,12 @@ public abstract class AnimationConsumer {
     }
 
     protected void animateAtTime(float time) {
+        this.animateAtTime(time, 1F);
+    }
+
+    protected void animateAtTime(float time, float degree) {
         for (KeyframeInfo keyframe : this.getInfo()) {
-            this.animateKeyframe(keyframe, time);
+            this.animateKeyframe(keyframe, time, degree);
         }
     }
 
@@ -33,21 +37,21 @@ public abstract class AnimationConsumer {
         return this.infos;
     }
 
-    private void animateKeyframe(KeyframeInfo kf, float animTime) {
-        float time = this.getProgressionValue(kf.getProgressionPoints(),(animTime - kf.getStartTime()) / kf.getDuration());
+    private void animateKeyframe(KeyframeInfo kf, float animTime, float degree) {
+        float percentage = this.getProgressionValue(kf.getProgressionPoints(),(animTime - kf.getStartTime()) / kf.getDuration()) * degree;
 
         float[] values;
         for (Map.Entry<String, float[]> entry : kf.getRotationMap().entrySet()) {
             values = entry.getValue();
-            this.addRotation(entry.getKey(), values[0]*time, values[1]*time, values[2]*time);
+            this.addRotation(entry.getKey(), values[0]*percentage, values[1]*percentage, values[2]*percentage);
         }
         for (Map.Entry<String, float[]> entry : kf.getPositionMap().entrySet()) {
             values = entry.getValue();
-            this.addPosition(entry.getKey(), values[0]*time, values[1]*time, values[2]*time);
+            this.addPosition(entry.getKey(), values[0]*percentage, values[1]*percentage, values[2]*percentage);
         }
         for (Map.Entry<String, float[]> entry : kf.getCubeGrowMap().entrySet()) {
             values = entry.getValue();
-            this.addCubeGrow(entry.getKey(), values[0]*time, values[1]*time, values[2]*time);
+            this.addCubeGrow(entry.getKey(), values[0]*percentage, values[1]*percentage, values[2]*percentage);
         }
     }
 

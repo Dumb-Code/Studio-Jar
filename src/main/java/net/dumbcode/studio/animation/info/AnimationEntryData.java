@@ -7,8 +7,8 @@ public class AnimationEntryData {
     private Supplier<Boolean> loopUntil = () -> true;
     private Supplier<Boolean> holdUntil = () -> false;
 
-    private float speed;
-    private float degreeFactor;
+    private Supplier<Float> speedSupplier;
+    private Supplier<Float> degreeFactorSupplier;
 
     public AnimationEntryData(AnimationInfo info) {
         this.info = info;
@@ -30,26 +30,53 @@ public class AnimationEntryData {
         return this;
     }
     public AnimationEntryData withSpeed(float speed) {
-        this.speed = speed;
+        return this.withSpeed(() -> speed);
+    }
+    public AnimationEntryData withSpeed(Supplier<Float> speed) {
+        this.speedSupplier = speed;
         return this;
     }
+
+
     public AnimationEntryData withDegreeFactor(float degreeFactor) {
-        this.degreeFactor = degreeFactor;
+        return this.withDegreeFactor(() -> degreeFactor);
+    }
+
+    public AnimationEntryData withDegreeFactor(Supplier<Float> degreeFactor) {
+        this.degreeFactorSupplier = degreeFactor;
         return this;
     }
 
     public boolean shouldLoop() {
         return !this.loopUntil.get();
     }
+
+    public Supplier<Boolean> getLoopUntil() {
+        return loopUntil;
+    }
+
     public boolean shouldHold() {
         return this.holdUntil.get();
     }
+
+    public Supplier<Boolean> getHoldUntil() {
+        return holdUntil;
+    }
+
     public float getSpeed() {
-        return this.speed;
+        return this.speedSupplier.get();
+    }
+
+    public Supplier<Float> getSpeedSupplier() {
+        return speedSupplier;
     }
 
     public float getDegreeFactor() {
-        return degreeFactor;
+        return degreeFactorSupplier.get();
+    }
+
+    public Supplier<Float> getDegreeFactorSupplier() {
+        return degreeFactorSupplier;
     }
 
     public AnimationInfo getInfo() {
