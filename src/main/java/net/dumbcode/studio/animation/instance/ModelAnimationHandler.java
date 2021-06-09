@@ -71,6 +71,13 @@ public class ModelAnimationHandler {
         }
     }
 
+    public void forceAnimation(UUID uuid, AnimationInfo info) {
+        AnimationEntry entry = this.entries.get(uuid);
+        if(entry != null) {
+            entry.forceAnimation(info);
+        }
+    }
+
     public AnimationInfo getInfo(UUID uuid) {
         AnimationEntry entry = this.entries.get(uuid);
         if(entry != null) {

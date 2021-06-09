@@ -3,6 +3,7 @@ package net.dumbcode.studio.animation.instance;
 import net.dumbcode.studio.animation.events.AnimationEventRegister;
 import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationEventInfo;
+import net.dumbcode.studio.animation.info.AnimationInfo;
 
 import java.util.*;
 
@@ -14,6 +15,8 @@ public class AnimationEntry extends AnimationConsumer {
     private final ModelAnimationHandler model;
     private final AnimationEntryData data;
     private final UUID uuid;
+    
+    private AnimationInfo animation;
 
     private boolean isLooping;
     private boolean loopEndingMarker;
@@ -28,7 +31,9 @@ public class AnimationEntry extends AnimationConsumer {
         this.model = model;
         this.data = data;
         this.uuid = uuid;
+        this.animation = data.getInfo();
     }
+
 
     @Override
     protected void addPosition(String name, float x, float y, float z) {
@@ -42,7 +47,7 @@ public class AnimationEntry extends AnimationConsumer {
     protected void addRotation(String name, float x, float y, float z) {
         DelegateCube cube = this.model.getCube(name);
         if (cube != null) {
-            cube.addRotation(this.data.getInfo().getOrder(), x, y, z);
+            cube.addRotation(this.animation.getOrder(), x, y, z);
         }
     }
 
@@ -53,34 +58,40 @@ public class AnimationEntry extends AnimationConsumer {
             cube.addCubeGrow(x, y, z);
         }
     }
+    
+    public void forceAnimation(AnimationInfo info) {
+        this.animation = info;
+        this.infos.clear();
+        this.infos.addAll(info.getKeyframes());
+    }
 
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
         this.timeDone += deltaTime * this.data.getSpeed();
         if(this.isLooping) {
-            if(this.timeDone > this.data.getInfo().getLoopingData().getDuration()) {
+            if(this.timeDone > this.animation.getLoopingData().getDuration()) {
                 this.isLooping = false;
-                this.timeDone += this.data.getInfo().getLoopingData().getStart() - this.data.getInfo().getLoopingData().getDuration();
+                this.timeDone += this.animation.getLoopingData().getStart() - this.animation.getLoopingData().getDuration();
             } else {
                 this.animateLoopingFrame();
                 return;
             }
         }
 
-        if(this.timeDone > this.data.getInfo().getLoopingData().getEnd()) {
+        if(this.timeDone > this.animation.getLoopingData().getEnd()) {
             if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
-                AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
+                AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.isLooping = true;
-                this.timeDone -= this.data.getInfo().getLoopingData().getEnd();
+                this.timeDone -= this.animation.getLoopingData().getEnd();
                 this.animateLoopingFrame();
                 return;
             }
             this.loopEndingMarker = true;
         }
 
-        boolean finished = this.timeDone > this.data.getInfo().getTotalTime();
+        boolean finished = this.timeDone > this.animation.getTotalTime();
         if(finished && !this.data.shouldHold()) {
-            AnimationCapture.CAPTURE.captureAnimation(this.data.getInfo().getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
+            AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
             this.finish();
         }
 
@@ -90,7 +101,7 @@ public class AnimationEntry extends AnimationConsumer {
             return;
         }
 
-        for (AnimationEventInfo event : this.data.getInfo().getSortedEvents()[(int) this.timeDone]) {
+        for (AnimationEventInfo event : this.animation.getSortedEvents()[(int) this.timeDone]) {
             if(event.getTime() >= previousTime && event.getTime() < this.timeDone) {
                 for (Map.Entry<String, List<String>> entry : event.getData().entrySet()) {
                     for (String s : entry.getValue()) {
@@ -103,10 +114,10 @@ public class AnimationEntry extends AnimationConsumer {
 
     private void animateLoopingFrame() {
         this.renderFromCaptured (
-            1 - this.timeDone/this.data.getInfo().getLoopingData().getDuration(),
-            this.data.getInfo().getLoopedKeyframe().getPositionMap(),
-            this.data.getInfo().getLoopedKeyframe().getRotationMap(),
-            this.data.getInfo().getLoopedKeyframe().getCubeGrowMap()
+            1 - this.timeDone/this.animation.getLoopingData().getDuration(),
+            this.animation.getLoopedKeyframe().getPositionMap(),
+            this.animation.getLoopedKeyframe().getRotationMap(),
+            this.animation.getLoopedKeyframe().getCubeGrowMap()
         );
     }
 
@@ -142,7 +153,7 @@ public class AnimationEntry extends AnimationConsumer {
             DelegateCube cube = this.model.getCube(name);
             float[] off = rotOffset.getOrDefault(name, EMPTY);
             if (cube != null) {
-                cube.addRotation(this.data.getInfo().getOrder(),
+                cube.addRotation(this.animation.getOrder(),
                     data[0]*time + off[0]*invTime,
                     data[1]*time + off[1]*invTime,
                     data[2]*time + off[2]*invTime
