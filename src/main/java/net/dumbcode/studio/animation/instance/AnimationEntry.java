@@ -76,17 +76,17 @@ public class AnimationEntry extends AnimationConsumer {
                 this.animateLoopingFrame();
                 return;
             }
-        }
 
-        if(this.timeDone > this.animation.getLoopingData().getEnd()) {
-            if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
-                AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
-                this.isLooping = true;
-                this.timeDone -= this.animation.getLoopingData().getEnd();
-                this.animateLoopingFrame();
-                return;
+            if(this.timeDone > this.animation.getLoopingData().getEnd()) {
+                if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
+                    AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
+                    this.isLooping = true;
+                    this.timeDone -= this.animation.getLoopingData().getEnd();
+                    this.animateLoopingFrame();
+                    return;
+                }
+                this.loopEndingMarker = true;
             }
-            this.loopEndingMarker = true;
         }
 
         boolean finished = this.timeDone > this.animation.getTotalTime();

@@ -7,8 +7,8 @@ public class AnimationEntryData {
     private Supplier<Boolean> loopUntil = () -> true;
     private Supplier<Boolean> holdUntil = () -> false;
 
-    private Supplier<Float> speedSupplier;
-    private Supplier<Float> degreeFactorSupplier;
+    private Supplier<Float> speedSupplier = () -> 1F;
+    private Supplier<Float> degreeFactorSupplier = () -> 1F;
 
     public AnimationEntryData(AnimationInfo info) {
         this.info = info;

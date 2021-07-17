@@ -4,6 +4,7 @@ import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.model.RotationOrder;
 
+import java.sql.Array;
 import java.util.*;
 
 public class ModelAnimationHandler {
@@ -12,6 +13,7 @@ public class ModelAnimationHandler {
     private Object src;
 
     private final Map<UUID, AnimationEntry> entries = new HashMap<>();
+    private final List<UUID> entriesToRemove = new ArrayList<>();
     private final List<AnimationEntry> cooldownEntries = new ArrayList<>();
 
     private final Map<String, DelegateCube> cubeDelegates = new HashMap<>();
@@ -42,6 +44,8 @@ public class ModelAnimationHandler {
         for (AnimatedCube cube : cubes) {
             this.getCube(cube.getInfo().getName()).apply(cube);
         }
+
+        this.entriesToRemove.forEach(this.entries::remove);
     }
 
     public UUID startAnimation(AnimationInfo info) {
@@ -87,7 +91,8 @@ public class ModelAnimationHandler {
     }
 
     void removeEntry(UUID uuid) {
-        AnimationEntry remove = this.entries.remove(uuid);
+        AnimationEntry remove = this.entries.get(uuid);
+        this.entriesToRemove.add(uuid);
         if(remove != null) {
             this.cooldownEntries.add(remove);
         }
