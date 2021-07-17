@@ -2,9 +2,7 @@ package net.dumbcode.studio.animation.instance;
 
 import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationInfo;
-import net.dumbcode.studio.model.RotationOrder;
 
-import java.sql.Array;
 import java.util.*;
 
 public class ModelAnimationHandler {
