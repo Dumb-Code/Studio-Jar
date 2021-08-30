@@ -1,9 +1,13 @@
 package net.dumbcode.studio.util;
 
 import net.dumbcode.studio.model.CubeInfo;
+import net.dumbcode.studio.model.ModelLoader;
 import net.dumbcode.studio.model.ModelMirror;
 import net.dumbcode.studio.model.RotationOrder;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -13,13 +17,12 @@ import java.util.function.UnaryOperator;
 //
 //Essentially, just mirrors a model on it's axis.
 public class ModelMirrorApplier {
-    private static final double WORLD_POS_X = 8F;
+    private static final double WORLD_POS_X = 0F;
     private static final double WORLD_POS_Y = 12F;
-    private static final double WORLD_POS_Z = 8F;
+    private static final double WORLD_POS_Z = 0F;
 
     public static void mirrorCubes(List<CubeInfo> roots, ModelMirror to) {
         Matrix matrix = new Matrix();
-        matrix.translate(8, 0, 8);
         for (float[] normal : to.getPlaneNormals()) {
             UnaryOperator<double[]> mirrorPoint = vec -> {
                 //Definition of a plane at point (x0, y0, z0) (var: worldPos) with normal (A, B, C) (var: normal):
@@ -153,9 +156,9 @@ public class ModelMirrorApplier {
         );
         Function<Boolean, double[]> cubeWorldCorner = farEnd -> {
             double[] pos = farEnd ? new double[] {
-                cube.getDimensions()[0] + cube.getCubeGrow()[0],
-                cube.getDimensions()[1] + cube.getCubeGrow()[1],
-                cube.getDimensions()[2] + cube.getCubeGrow()[2],
+                cube.getDimensions()[0] + cube.getCubeGrow()[0]*2,
+                cube.getDimensions()[1] + cube.getCubeGrow()[1]*2,
+                cube.getDimensions()[2] + cube.getCubeGrow()[2]*2,
             } : new double[3];
             matrix.push();
             matrix.translate(pos);
