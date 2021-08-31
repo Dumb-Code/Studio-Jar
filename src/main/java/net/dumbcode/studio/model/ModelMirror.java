@@ -16,6 +16,8 @@ public enum ModelMirror {
 
     private final float[][] planeNormals;
 
+    private final float[] origin = new float[3];
+
     ModelMirror(int... normals) {
         this.planeNormals = new float[normals.length][3];
         for (int i = 0; i < normals.length; i++) {
@@ -23,8 +25,15 @@ public enum ModelMirror {
         }
     }
 
-    public void applyAsGlobal() {
+    public void applyAsGlobal(float rootX, float rootY, float rootZ) {
         global = this;
+        origin[0] = rootX;
+        origin[1] = rootY;
+        origin[2] = rootZ;
+    }
+
+    public float[] getOrigin() {
+        return origin;
     }
 
     public float[][] getPlaneNormals() {

@@ -38,7 +38,7 @@ public class ModelLoader {
         }
 
         ModelInfo info = new ModelInfo(buffer.readString(), buffer.readInt(), buffer.readInt(), order);
-        readCubeArray(info, buffer, current, order, info.getRoots());
+        readCubeArray(info, null, buffer, current, order, info.getRoots());
 
         if(mirrorOrder != ModelMirror.NONE) {
             ModelMirrorApplier.mirrorCubes(info.getRoots(), mirrorOrder);
@@ -46,11 +46,11 @@ public class ModelLoader {
         return info;
     }
 
-    private static void readCubeArray(ModelInfo parent, StudioInputStream buffer, RotationOrder current, RotationOrder target, List<CubeInfo> list) throws IOException {
+    private static void readCubeArray(ModelInfo model, CubeInfo parent, StudioInputStream buffer, RotationOrder current, RotationOrder target, List<CubeInfo> list) throws IOException {
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             CubeInfo info = new CubeInfo(
-                parent,
+                model, parent,
                 buffer.readString(),
                 buffer.readIntArray(3),
                 buffer.readFloatArray(3),
@@ -62,7 +62,7 @@ public class ModelLoader {
                 current
             );
             RotationReorder.reorder(info.getRotation(), current, target);
-            readCubeArray(parent, buffer, current, target, info.getChildren());
+            readCubeArray(model, info, buffer, current, target, info.getChildren());
             list.add(info);
         }
     }

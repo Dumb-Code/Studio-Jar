@@ -1,16 +1,18 @@
 package net.dumbcode.studio.model;
 
+import net.dumbcode.studio.util.EssentiallyACube;
 import net.dumbcode.studio.util.RotationReorder;
 
 import java.util.*;
 
-public class CubeInfo {
+public class CubeInfo implements EssentiallyACube {
     private final ModelInfo model;
+    private final CubeInfo parent;
     private final String name;
     private final int[] dimensions;
     private final float[] rotationPoint;
     private final float[] offset;
-    private final float[] rotation;
+    private final float[] rotation; //In radians
     private final int[] textureOffset;
     private final boolean textureMirrored;
     private final float[] cubeGrow;
@@ -20,11 +22,12 @@ public class CubeInfo {
     private final float[][] generatedUVs = new float[6][4];
     private final Map<RotationOrder, float[]> allDefaultRotations = new EnumMap<>(RotationOrder.class);
 
-    public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow) {
-        this(model, name, dimensions, rotationPoint, offset,rotation, textureOffset, textureMirrored, cubeGrow, RotationOrder.global);
+    public CubeInfo(ModelInfo model, CubeInfo parent, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow) {
+        this(model, parent, name, dimensions, rotationPoint, offset,rotation, textureOffset, textureMirrored, cubeGrow, RotationOrder.global);
     }
-    public CubeInfo(ModelInfo model, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow, RotationOrder current) {
+    public CubeInfo(ModelInfo model, CubeInfo parent, String name, int[] dimensions, float[] rotationPoint, float[] offset, float[] rotation, int[] textureOffset, boolean textureMirrored, float[] cubeGrow, RotationOrder current) {
         this.model = model;
+        this.parent = parent;
         this.name = name;
         this.dimensions = dimensions;
         this.rotationPoint = rotationPoint;
@@ -42,18 +45,22 @@ public class CubeInfo {
         return this.name;
     }
 
+    @Override
     public int[] getDimensions() {
         return this.dimensions;
     }
 
+    @Override
     public float[] getRotationPoint() {
         return this.rotationPoint;
     }
 
+    @Override
     public float[] getOffset() {
         return this.offset;
     }
 
+    @Override
     public float[] getRotation() {
         return this.rotation;
     }
@@ -66,12 +73,18 @@ public class CubeInfo {
         return this.textureMirrored;
     }
 
+    @Override
     public float[] getCubeGrow() {
         return this.cubeGrow;
     }
 
     public List<CubeInfo> getChildren() {
         return this.children;
+    }
+
+    @Override
+    public CubeInfo getParent() {
+        return parent;
     }
 
     public ModelInfo getModel() {
@@ -82,6 +95,7 @@ public class CubeInfo {
         return generatedUVs;
     }
 
+    @Override
     public RotationOrder getRotationOrder() {
         return rotationOrder;
     }
