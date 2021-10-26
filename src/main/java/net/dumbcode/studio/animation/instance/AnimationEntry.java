@@ -4,6 +4,7 @@ import net.dumbcode.studio.animation.events.AnimationEventRegister;
 import net.dumbcode.studio.animation.info.AnimationEntryData;
 import net.dumbcode.studio.animation.info.AnimationEventInfo;
 import net.dumbcode.studio.animation.info.AnimationInfo;
+import net.dumbcode.studio.animation.info.KeyframeHeader;
 
 import java.util.*;
 
@@ -15,11 +16,12 @@ public class AnimationEntry extends AnimationConsumer {
     private final ModelAnimationHandler model;
     private final AnimationEntryData data;
     private final UUID uuid;
-    
+
     private AnimationInfo animation;
 
     private boolean isLooping;
     private boolean loopEndingMarker;
+    private float reLoopTime;
     private float timeDone;
 
     private final Map<String, float[]> capturedRotationData = new HashMap<>();
@@ -58,7 +60,7 @@ public class AnimationEntry extends AnimationConsumer {
             cube.addCubeGrow(x, y, z);
         }
     }
-    
+
     public void forceAnimation(AnimationInfo info) {
         this.animation = info;
         this.infos.clear();
@@ -68,6 +70,11 @@ public class AnimationEntry extends AnimationConsumer {
     public void animate(float deltaTime) {
         float previousTime = this.timeDone;
         this.timeDone += deltaTime * this.data.getSpeed();
+
+        if(this.timeDone < this.reLoopTime) {
+            this.animateLoopingRebound();
+        }
+
         if(this.isLooping) {
             if(this.timeDone > this.animation.getLoopingData().getDuration()) {
                 this.isLooping = false;
@@ -76,23 +83,27 @@ public class AnimationEntry extends AnimationConsumer {
                 this.animateLoopingFrame();
                 return;
             }
-
-            if(this.timeDone > this.animation.getLoopingData().getEnd()) {
-                if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
-                    AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
-                    this.isLooping = true;
-                    this.timeDone -= this.animation.getLoopingData().getEnd();
-                    this.animateLoopingFrame();
-                    return;
-                }
-                this.loopEndingMarker = true;
+        }
+        if(this.animation.getLoopingData() != null && this.timeDone > this.animation.getLoopingData().getEnd()) {
+            if(!this.isLooping && !this.loopEndingMarker && this.data.shouldLoop()) {
+                AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
+                this.isLooping = true;
+                this.timeDone -= this.animation.getLoopingData().getEnd();
+                this.animateLoopingFrame();
+                return;
             }
+            this.loopEndingMarker = true;
         }
 
         boolean finished = this.timeDone > this.animation.getTotalTime();
         if(finished && !this.data.shouldHold()) {
             AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
-            this.finish();
+            if(this.data.shouldLoop() && this.animation.getLoopingData() == null) {
+                this.reLoopTime = cooldownTime;
+                this.timeDone = 0;
+            } else {
+                this.finish();
+            }
         }
 
         super.animateAtTime(this.timeDone, this.data.getDegreeFactor());
@@ -119,6 +130,10 @@ public class AnimationEntry extends AnimationConsumer {
             this.animation.getLoopedKeyframe().getRotationMap(),
             this.animation.getLoopedKeyframe().getCubeGrowMap()
         );
+    }
+
+    private void animateLoopingRebound() {
+        this.renderFromCaptured(1 - this.timeDone/this.reLoopTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
     }
 
     //True if finished. False otherwise.
