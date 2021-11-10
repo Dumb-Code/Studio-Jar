@@ -31,7 +31,7 @@ public class AnimationLoader {
 
         int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            info.getKeyframes().add(readKeyframe(buffer, info.getVersion()));
+            info.addKeyframe(readKeyframe(buffer, info.getVersion()));
         }
 
         readAnimationEvents(buffer, info.getAnimationEvents(), info.getVersion());

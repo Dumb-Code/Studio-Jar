@@ -3,6 +3,7 @@ package net.dumbcode.studio.animation.instance;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.animation.info.KeyframeInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +45,7 @@ public class AnimationCapture extends AnimationConsumer {
                                  Map<String, float[]> position,
                                  Map<String, float[]> rotation,
                                  Map<String, float[]> cubeGrow) {
-        this.infos.clear();
-        this.infos.addAll(keyframes);
+        this.infos = new ArrayList<>(keyframes);
 
         this.position = position;
         this.position.clear();

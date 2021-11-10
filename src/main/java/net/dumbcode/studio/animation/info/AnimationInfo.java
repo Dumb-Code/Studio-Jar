@@ -40,8 +40,12 @@ public class AnimationInfo {
         return order;
     }
 
+    public void addKeyframe(KeyframeInfo info) {
+        this.keyframes.add(info);
+    }
+
     public List<KeyframeInfo> getKeyframes() {
-        return this.keyframes;
+        return Collections.unmodifiableList(this.keyframes);
     }
 
     public List<AnimationEventInfo> getAnimationEvents() {

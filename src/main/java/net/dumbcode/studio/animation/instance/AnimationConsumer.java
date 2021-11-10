@@ -5,18 +5,19 @@ import net.dumbcode.studio.animation.info.KeyframeInfo;
 import net.dumbcode.studio.model.RotationOrder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AnimationConsumer {
-    protected final List<KeyframeInfo> infos;
+    protected List<KeyframeInfo> infos;
 
     public AnimationConsumer() {
         this.infos = new ArrayList<>();
     }
 
     public AnimationConsumer(List<KeyframeInfo> infos) {
-        this.infos = infos;
+        this.infos = new ArrayList<>(infos);
     }
 
     protected void animateAtTime(float time) {
