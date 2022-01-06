@@ -30,6 +30,7 @@ public class AnimationInfo {
         this.order = order;
         this.loopingData = loopingData;
         this.shouldComputeLoopingData = loopingData == null;
+        this.generatedCachedData();
     }
 
     public int getVersion() {
