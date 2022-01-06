@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 public class AnimationInfo {
 
-    public static final AnimationInfo EMPTY = new AnimationInfo(-1, RotationOrder.global, null);
     private static final AnimationEventInfo[] EMPTY_EVENT_INFO = new AnimationEventInfo[0];
+    public static final AnimationInfo EMPTY = new AnimationInfo(-1, RotationOrder.global, null);
 
     private final int version;
     private final RotationOrder order;
@@ -54,7 +54,7 @@ public class AnimationInfo {
     }
 
     public void generatedCachedData() {
-        this.totalTime = (float) this.keyframes.stream().mapToDouble(kf -> kf.getStartTime() + kf.getDuration()).max().orElseThrow(NoSuchElementException::new);
+        this.totalTime = (float) this.keyframes.stream().mapToDouble(kf -> kf.getStartTime() + kf.getDuration()).max().orElse(0);
 
         this.sortedEvents = IntStream.range(0, (int)this.totalTime + 1)
             .mapToObj(i ->
