@@ -29,7 +29,7 @@ public class AnimationInfo {
         this.version = version;
         this.order = order;
         this.loopingData = loopingData;
-        this.shouldComputeLoopingData = loopingData == null;
+        this.shouldComputeLoopingData = loopingData != null;
         this.generatedCachedData();
     }
 
