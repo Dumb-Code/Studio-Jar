@@ -6,6 +6,7 @@ import net.dumbcode.studio.animation.info.AnimationEventInfo;
 import net.dumbcode.studio.animation.info.AnimationInfo;
 import net.dumbcode.studio.animation.info.KeyframeHeader;
 
+import java.time.chrono.MinguoEra;
 import java.util.*;
 
 public class AnimationEntry extends AnimationConsumer {
@@ -151,8 +152,10 @@ public class AnimationEntry extends AnimationConsumer {
         if(timeIn < 0) timeIn = 0;
         if(timeIn > 1) timeIn = 1;
 
-        float time = timeIn;
-        float invTime = 1 - time;
+        float degree = this.data.getDegreeFactor();
+
+        float time = timeIn * degree;
+        float invTime = (1 - time) * degree;
         this.capturedPositionData.forEach((name, data) -> {
             DelegateCube cube = this.model.getCube(name);
             float[] off = posOffset.getOrDefault(name, EMPTY);
