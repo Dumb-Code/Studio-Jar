@@ -44,6 +44,7 @@ public class ModelAnimationHandler {
         }
 
         this.entriesToRemove.forEach(this.entries::remove);
+        this.entriesToRemove.clear();
     }
 
     public UUID startAnimation(AnimationInfo info) {

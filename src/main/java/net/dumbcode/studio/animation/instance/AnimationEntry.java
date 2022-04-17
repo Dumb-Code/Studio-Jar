@@ -98,8 +98,8 @@ public class AnimationEntry extends AnimationConsumer {
 
         boolean finished = this.timeDone > this.animation.getTotalTime();
         if(finished && !this.data.shouldHold()) {
-            AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
             if(this.data.shouldLoop() && this.animation.getLoopingData() == null) {
+                AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), previousTime, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
                 this.reLoopTime = cooldownTime;
                 this.timeDone = 0;
             } else {
@@ -192,6 +192,7 @@ public class AnimationEntry extends AnimationConsumer {
     }
 
     public void finish() {
+        AnimationCapture.CAPTURE.captureAnimation(this.animation.getKeyframes(), this.timeDone, this.capturedPositionData, this.capturedRotationData, this.capturedCubeGrowData);
         this.timeDone = cooldownTime;
         this.model.removeEntry(this.uuid);
     }

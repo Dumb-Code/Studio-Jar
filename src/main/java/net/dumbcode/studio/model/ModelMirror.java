@@ -14,11 +14,13 @@ public enum ModelMirror {
 
     public static ModelMirror global = NONE;
 
+    private final int[] normals;
     private final float[][] planeNormals;
 
     private final float[] origin = new float[3];
 
     ModelMirror(int... normals) {
+        this.normals = normals;
         this.planeNormals = new float[normals.length][3];
         for (int i = 0; i < normals.length; i++) {
             this.planeNormals[i] = new float[] { normals[i]==0?1:0, normals[i]==1?1:0, normals[i]==2?1:0};
@@ -30,6 +32,10 @@ public enum ModelMirror {
         origin[0] = rootX;
         origin[1] = rootY;
         origin[2] = rootZ;
+    }
+
+    public int[] getNormals() {
+        return normals;
     }
 
     public float[] getOrigin() {

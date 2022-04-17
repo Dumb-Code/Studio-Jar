@@ -1,6 +1,7 @@
 package net.dumbcode.studio.animation.instance;
 
 import net.dumbcode.studio.model.CubeInfo;
+import net.dumbcode.studio.model.ModelMirror;
 import net.dumbcode.studio.model.RotationOrder;
 import net.dumbcode.studio.util.RotationReorder;
 
@@ -20,6 +21,27 @@ public class DelegateCube {
 
     public void apply(AnimatedCube cube) {
         CubeInfo info = cube.getInfo();
+
+        float xMod = 1;
+        float yMod = 1;
+        float zMod = 1;
+        //If this is the root cube, we need to mirror the animations on the mirrored axis
+        if(info.getParent() == null) {
+            for (int normal : ModelMirror.global.getNormals()) {
+                switch (normal) {
+                    case 0:
+                        xMod = -1;
+                        break;
+                    case 1:
+                        yMod = -1;
+                        break;
+                    case 2:
+                        zMod = -1;
+                        break;
+                }
+            }
+        }
+
         float[] modelD = info.getRotationFor(info.getRotationOrder());
         float[] arr = Arrays.copyOf(modelD, 3);
         for (RotationOrder value : RotationOrder.values()) {
@@ -40,18 +62,20 @@ public class DelegateCube {
             a[2] += d[2];
 
             RotationReorder.reorder(a, value, info.getRotationOrder());
-            arr[0] += a[0] - modelD[0];
-            arr[1] += a[1] - modelD[1];
-            arr[2] += a[2] - modelD[2];
+            arr[0] += (a[0] - modelD[0]);
+            arr[1] += (a[1] - modelD[1]);
+            arr[2] += (a[2] - modelD[2]);
         }
+
 
         cube.setRotation(arr[0], arr[1], arr[2]);
 
+
         float[] pos = info.getRotationPoint();
-        cube.setPosition(this.position[0]+pos[0], this.position[1]+pos[1], this.position[2]+pos[2]);
+        cube.setPosition(this.position[0]*xMod+pos[0], this.position[1]*yMod+pos[1], this.position[2]*zMod+pos[2]);
 
         float[] dims = info.getCubeGrow();
-        cube.setCubeGrow(this.cubeDims[0]+dims[0], this.cubeDims[1]+dims[1], this.cubeDims[2]+dims[2]);
+        cube.setCubeGrow(this.cubeDims[0]*xMod+dims[0], this.cubeDims[1]*yMod+dims[1], this.cubeDims[2]*zMod+dims[2]);
     }
 
     public void reset() {
