@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 public class AnimationEntryData {
     private final AnimationInfo info;
     private Supplier<Boolean> loopUntil = () -> true;
-    private Supplier<Boolean> holdUntil = () -> false;
+    private Supplier<Boolean> holdUntil = () -> true;
 
     private Supplier<Float> speedSupplier = () -> 1F;
     private Supplier<Float> degreeFactorSupplier = () -> 1F;
@@ -56,7 +56,7 @@ public class AnimationEntryData {
     }
 
     public boolean shouldHold() {
-        return this.holdUntil.get();
+        return !this.holdUntil.get();
     }
 
     public Supplier<Boolean> getHoldUntil() {
